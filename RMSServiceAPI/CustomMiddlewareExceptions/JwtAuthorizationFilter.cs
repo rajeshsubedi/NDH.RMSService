@@ -33,10 +33,7 @@ namespace RMSServiceAPI.CustomMiddlewareExceptions
 
             if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             {
-                // If Authorization header doesn't start with "Bearer ", return 401 Unauthorized
-                httpcontext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await httpcontext.Response.WriteAsync("Unauthorized: Invalid Authorization header format. Expected 'Bearer <token>'.");
-                return;
+                throw new UserUnauthenticatedException("Unauthorized: Invalid Authorization header format. Expected 'Bearer <token>'.");
             }
 
             // Extract the token by removing "Bearer "
@@ -44,19 +41,14 @@ namespace RMSServiceAPI.CustomMiddlewareExceptions
 
             if (string.IsNullOrEmpty(token))
             {
-                // If token is empty after removing "Bearer ", return 401 Unauthorized
-                httpcontext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await httpcontext.Response.WriteAsync("Unauthorized: Token is missing.");
-                return;
+                throw new UserUnauthenticatedException("Unauthorized: Token is missing.");
             }
 
             // Validate the token
             if (!await ValidateTokenAsync(token))
             {
-                // If the token is invalid, return 403 Forbidden
-                httpcontext.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await httpcontext.Response.WriteAsync("Forbidden: Invalid or expired token.");
-                return;
+              
+                throw new UserUnauthenticatedException("Forbidden: Invalid or expired token.");
             }
         }
 
