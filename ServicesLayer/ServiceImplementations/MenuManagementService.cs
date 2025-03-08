@@ -53,7 +53,7 @@ namespace ServicesLayer.ServiceImplementations
             catch (Exception ex)
             {
                 Log.Error("An error occurred while adding a food category.");
-                throw new CustomInvalidOperationException("An error occurred while adding a food category.");
+                throw new CustomInvalidOperationException($"An error occurred while adding a food category. {ex}");
             }
         }
 
