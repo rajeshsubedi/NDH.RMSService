@@ -49,7 +49,12 @@ if (app.Environment.IsDevelopment())
 {
 }
 app.UseSwagger();
-app.UseSwaggerUI();
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/V1/swagger.json", "My API V1");
+    c.RoutePrefix = "swagger";
+});
 
 app.CorsMiddlewareRegister();
 
@@ -58,13 +63,13 @@ app.UseHttpsRedirection();
 // Register custom exception handling middleware
 app.UseMiddleware<CustomExceptionHandlingMiddleware>();
 
-//app.UseMiddleware<JwtMiddleware>();
-
 app.UseRouting();
 
 app.UseAuthentication();
 // Use authorization and routing
 app.UseAuthorization();
+
+app.MapGet("/", () => $"Welcome to RMS Service API {DateTime.Now}").ExcludeFromDescription();
 // Map controllers
 app.MapControllers();
 

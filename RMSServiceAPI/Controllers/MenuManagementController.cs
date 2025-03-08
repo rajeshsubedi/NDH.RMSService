@@ -4,6 +4,7 @@ using DomainLayer.Wrappers.DTO.MenuManagementDTO;
 using DomainLayer.Wrappers.GlobalResponse;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RMSServiceAPI.CustomMiddlewareExceptions;
 using Serilog;
 using ServicesLayer.ServiceInterfaces;
 using System.Net;
@@ -21,7 +22,7 @@ namespace RMSServiceAPI.Controllers
             _menuManagementService = menuManagementService;
         }
 
-        [Authorize]
+        [ServiceFilter(typeof(JwtAuthorizationFilter))]
         [HttpPost("add-food-category")]
         public async Task<BaseResponse<Guid>> AddFoodCategory([FromForm] FoodCategoryRequestDTO categoryDto)
         {
