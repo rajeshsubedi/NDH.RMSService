@@ -38,7 +38,7 @@ namespace ServicesLayer.ServiceImplementations
                 categoryDetail.CategoryId = Guid.NewGuid();
                 categoryDetail.Name = categoryDto.Name;
                 categoryDetail.ImageUrl = categoryDto.ImageUrl;
-                categoryDetail.ImagePath = categoryDetail.ImagePath;
+                categoryDetail.ImagePath = categoryDto.ImagePath;
                 categoryDetail.Description = categoryDto.Description;
                 await _menuManagementRepo.AddFoodCategoryAsync(categoryDetail);
                 await _menuManagementRepo.SaveChangesAsync();
