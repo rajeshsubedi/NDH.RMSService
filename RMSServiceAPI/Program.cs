@@ -28,6 +28,10 @@ builder.Services.JWTAuthenticationRegister(builder);
 
 builder.Services.CorsConfigurationRegister(builder.Configuration);
 
+builder.Services.AddAuthentication();
+
+builder.Services.AddAuthorization();
+
 builder.Services.ServicesRegister();
 
 // Register the DbContext with the connection string
@@ -51,17 +55,16 @@ app.CorsMiddlewareRegister();
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<JwtMiddleware>();
 // Register custom exception handling middleware
 app.UseMiddleware<CustomExceptionHandlingMiddleware>();
 
-// Register CORS
+//app.UseMiddleware<JwtMiddleware>();
 
-// Use authorization and routing
-app.UseAuthorization();
-// Define custom route template
 app.UseRouting();
 
+app.UseAuthentication();
+// Use authorization and routing
+app.UseAuthorization();
 // Map controllers
 app.MapControllers();
 

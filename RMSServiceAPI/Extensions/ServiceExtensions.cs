@@ -32,7 +32,8 @@ namespace RMSServiceAPI.Extensions
                     policy.WithOrigins(clientUrl) // Replace with your frontend URL if different
                           .AllowAnyHeader()
                           .AllowAnyMethod()
-                          .AllowCredentials();
+                          .AllowCredentials()
+                          .WithExposedHeaders("Authorization");
                 });
             });
         }

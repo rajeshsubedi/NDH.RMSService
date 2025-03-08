@@ -21,7 +21,7 @@ namespace RMSServiceAPI.Controllers
             _menuManagementService = menuManagementService;
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("add-food-category")]
         public async Task<BaseResponse<Guid>> AddFoodCategory([FromForm] FoodCategoryRequestDTO categoryDto)
         {
