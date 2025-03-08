@@ -1,4 +1,5 @@
 ﻿using DomainLayer.Exceptions;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
@@ -6,21 +7,23 @@ using System.Text;
 
 namespace RMSServiceAPI.CustomMiddlewareExceptions
 {
-    public class JwtMiddleware
+    public class JwtAuthorizationFilter : Attribute, IAsyncAuthorizationFilter
     {
-        private readonly RequestDelegate _next;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
 
-        public JwtMiddleware(RequestDelegate next, IConfiguration configuration)
+        public JwtAuthorizationFilter(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
-            _next = next;
+            _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+
+        public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
+            var httpcontext = _httpContextAccessor.HttpContext;
             // Retrieve the Authorization header from the request
-            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+            var authHeader = httpcontext.Request.Headers["Authorization"].FirstOrDefault();
 
             if (string.IsNullOrEmpty(authHeader))
             {
@@ -31,8 +34,8 @@ namespace RMSServiceAPI.CustomMiddlewareExceptions
             if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             {
                 // If Authorization header doesn't start with "Bearer ", return 401 Unauthorized
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Unauthorized: Invalid Authorization header format. Expected 'Bearer <token>'.");
+                httpcontext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await httpcontext.Response.WriteAsync("Unauthorized: Invalid Authorization header format. Expected 'Bearer <token>'.");
                 return;
             }
 
@@ -42,8 +45,8 @@ namespace RMSServiceAPI.CustomMiddlewareExceptions
             if (string.IsNullOrEmpty(token))
             {
                 // If token is empty after removing "Bearer ", return 401 Unauthorized
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Unauthorized: Token is missing.");
+                httpcontext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await httpcontext.Response.WriteAsync("Unauthorized: Token is missing.");
                 return;
             }
 
@@ -51,16 +54,11 @@ namespace RMSServiceAPI.CustomMiddlewareExceptions
             if (!await ValidateTokenAsync(token))
             {
                 // If the token is invalid, return 403 Forbidden
-                context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsync("Forbidden: Invalid or expired token.");
+                httpcontext.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await httpcontext.Response.WriteAsync("Forbidden: Invalid or expired token.");
                 return;
             }
-
-            // Proceed with the next middleware if everything is valid
-            await _next(context);
         }
-
-
 
         private async Task<bool> ValidateTokenAsync(string token)
         {

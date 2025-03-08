@@ -15,6 +15,7 @@ using DomainLayer.Common;
 using DomainLayer.Models.DomainModels;
 using ServicesLayer.ServiceInterfaces;
 using SendGrid;
+using RMSServiceAPI.CustomMiddlewareExceptions;
 
 
 namespace RMSServiceAPI.Extensions
@@ -49,6 +50,7 @@ namespace RMSServiceAPI.Extensions
             collection.AddScoped<IOrderManagementRepo, OrderManagementRepo>();
             collection.AddScoped<IOrderManagementService, OrderManagementService>();
             collection.AddScoped<IEmailService, EmailService>();
+            collection.AddScoped<JwtAuthorizationFilter>();
         }
 
         public static void ConfigureSeriLogs(this IServiceCollection collection, IConfiguration configuration)
