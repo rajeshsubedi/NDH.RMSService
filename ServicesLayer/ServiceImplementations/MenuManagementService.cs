@@ -58,13 +58,40 @@ namespace ServicesLayer.ServiceImplementations
         }
 
 
-        public async Task<MenuCategoryDetails> GetAllFoodItemsWithCategoryId(Guid categoryId)
+        public async Task<List<FoodCategoryResponseDTO>> GetAllFoodItemsWithCategoryId(Guid categoryId)
         {
             // Fetch categories from repository
             var categories = await _menuManagementRepo.GetAllFoodItemsByCategoryId(categoryId);
 
-            // Perform any additional business logic if required
-            return categories;
+            if (categories == null)
+            {
+                return new List<FoodCategoryResponseDTO>(); // Return empty list if no category found
+            }
+            var categoryDTO = new FoodCategoryResponseDTO
+            {
+                CategoryId = categories.CategoryId,
+                Name = categories.Name,
+                Description = categories.Description,
+                ImagePath = categories.ImagePath,
+
+                // Map associated food items, handle null case
+                FoodItems = categories.FoodItems?.Select(item => new FoodItemResponseDTO
+                {
+                    ItemId = item.ItemId,
+                    Name = item.Name,
+                    Description = item.Description,
+                    Price = item.Price,
+                    DiscountPercentage = item.DiscountPercentage,
+                    ImagePath = item.ImagePath,
+                    OfferPeriod = item.OfferPeriod,
+                    OfferDetails = item.OfferDetails,
+                    IsSpecialOffer = item.IsSpecialOffer,
+                    OrderLink = item.OrderLink,
+                    CategoryId = item.CategoryId
+                }).ToList() ?? new List<FoodItemResponseDTO>() // Return empty list if null
+            };
+
+            return new List<FoodCategoryResponseDTO> { categoryDTO };
         }
 
         public async Task<List<FoodCategoryResponseDTO>> GetFoodCategoriesByIdOrNameAsync(Guid? id, string name)
@@ -97,30 +124,7 @@ namespace ServicesLayer.ServiceImplementations
         {
             var categories = await _menuManagementRepo.GetAllCategoriesAndFoodItemsAsync();
 
-            // Manual mapping from MenuCategoryDetails to FoodCategoryResponseDTO
-            //var categoryDTOs = categories.Select(category => new FoodCategoryResponseDTO
-            //{
-            //    CategoryId = category.CategoryId,
-            //    Name = category.Name,
-            //    Description = category.Description,
-            //    ImagePath = category.ImagePath,
-
-            //    // Map associated food items
-            //    FoodItems = category.FoodItems.Select(item => new FoodItemResponseDTO
-            //    {
-            //        ItemId = item.ItemId,
-            //        Name = item.Name,
-            //        Description = item.Description,
-            //        Price = item.Price,
-            //        DiscountPercentage = item.DiscountPercentage,
-            //        ImagePath = item.ImagePath,
-            //        OfferPeriod = item.OfferPeriod,
-            //        OfferDetails = item.OfferDetails,
-            //        IsSpecialOffer = item.IsSpecialOffer,
-            //        OrderLink = item.OrderLink,
-            //        CategoryId = item.CategoryId
-            //    }).ToList()
-            //}).ToList();
+         
 
             return categories;
         }

@@ -125,8 +125,8 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<byte[]>("ImageData")
-                        .HasColumnType("VARBINARY(MAX)");
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(1024)
@@ -159,8 +159,8 @@ namespace DataAccessLayer.Migrations
                     b.Property<decimal?>("DiscountPercentage")
                         .HasColumnType("decimal(5,2)");
 
-                    b.Property<byte[]>("ImageData")
-                        .HasColumnType("VARBINARY(MAX)");
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(1024)");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(1024)");
@@ -212,8 +212,8 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("ImageData")
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
