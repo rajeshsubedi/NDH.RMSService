@@ -72,7 +72,7 @@ namespace ServicesLayer.ServiceImplementations
         public DateTime GetTokenExpiration()
         {
             int refreshTokenExpirationDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpirationDays");
-            return DateTime.UtcNow.AddDays(refreshTokenExpirationDays);  // Refresh token expiration time
+            return DateTime.UtcNow.AddMinutes(refreshTokenExpirationDays);  // Refresh token expiration time
         }
 
         //Register Email Section

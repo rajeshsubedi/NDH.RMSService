@@ -19,10 +19,13 @@ namespace RMSServiceAPI.CustomMiddlewareExceptions
         public async Task InvokeAsync(HttpContext context)
         {
             // Retrieve the Authorization header from the request
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+            var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
 
-            if (token != null)
+            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             {
+                // Extract the token by removing "Bearer "
+                var token = authHeader.Substring("Bearer ".Length).Trim();
+
                 // Validate the token
                 if (!await ValidateTokenAsync(token))
                 {
@@ -32,10 +35,18 @@ namespace RMSServiceAPI.CustomMiddlewareExceptions
                     return;
                 }
             }
+            else if (!string.IsNullOrEmpty(authHeader))
+            {
+                // If Authorization header is present but doesn't start with "Bearer ", return Unauthorized
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsync("Invalid Authorization header format. Expected 'Bearer <token>'");
+                return;
+            }
 
-            // Proceed with the next middleware or request handling
+            // Proceed with the next middleware
             await _next(context);
         }
+
 
         private async Task<bool> ValidateTokenAsync(string token)
         {

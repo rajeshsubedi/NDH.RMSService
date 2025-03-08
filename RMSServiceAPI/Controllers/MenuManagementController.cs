@@ -21,6 +21,7 @@ namespace RMSServiceAPI.Controllers
             _menuManagementService = menuManagementService;
         }
 
+        //[Authorize]
         [HttpPost("add-food-category")]
         public async Task<BaseResponse<Guid>> AddFoodCategory([FromForm] FoodCategoryRequestDTO categoryDto)
         {
@@ -162,7 +163,7 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
-        //[Authorize]
+        
         [HttpPost("add-food-item")]
         public async Task<BaseResponse<Guid>> AddFoodItem([FromForm] FoodItemRequestDTO foodItemDto)
         {
