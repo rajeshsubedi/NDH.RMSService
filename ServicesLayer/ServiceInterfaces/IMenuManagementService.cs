@@ -11,11 +11,11 @@ namespace ServicesLayer.ServiceInterfaces
 {
     public interface IMenuManagementService
     {
-        Task<BaseResponse<Guid>> AddFoodCategoryAsync(FoodCategoryRequestDTO categoryDto, byte[] imageBytes);
+        Task<BaseResponse<Guid>> AddFoodCategoryAsync(FoodCategoryRequestDTO categoryDto);
         Task<MenuCategoryDetails> GetAllFoodItemsWithCategoryId(Guid categoryId);
         Task<List<FoodCategoryResponseDTO>> GetFoodCategoriesByIdOrNameAsync(Guid? id, string name);
         Task<List<FoodCategoryResponseDTO>> GetAllCategoriesAndFoodItemsAsync();
-        Task<BaseResponse<Guid>> AddFoodItemAsync(FoodItemRequestDTO foodItemDto, Guid categoryId, byte[] imageBytes);
+        Task<BaseResponse<Guid>> AddFoodItemAsync(FoodItemRequestDTO foodItemDto, Guid categoryId);
         Task<List<FoodItemResponseDTO>> GetAllFoodItemsAsync();
         Task<List<FoodItemResponseDTO>> GetFoodItemsByIdOrNameAsync(Guid? itemId, string name);
     }

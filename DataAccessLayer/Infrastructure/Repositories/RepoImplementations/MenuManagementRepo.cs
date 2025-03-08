@@ -74,7 +74,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                 CategoryId = category.CategoryId,
                 Name = category.Name,
                 Description = category.Description,
-                ImageData = category.ImageData,
+                ImagePath = category.ImagePath,
                 ImageUrl = category.ImageUrl,
 
                 // Map the associated food items
@@ -85,7 +85,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                     Description = item.Description,
                     Price = item.Price,
                     DiscountPercentage = item.DiscountPercentage,
-                    ImageData = item.ImageData,
+                    ImagePath = item.ImagePath,
                     ImageUrl = item.ImageUrl,
                     OfferPeriod = item.OfferPeriod,
                     OfferDetails = item.OfferDetails,
@@ -124,7 +124,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                 Description = item.Description,
                 Price = item.Price,
                 DiscountPercentage = item.DiscountPercentage, // Assuming this field exists in MenuItemDetails
-                ImageData = item.ImageData,
+                ImagePath = item.ImagePath,
                 ImageUrl = item.ImageUrl,
                 OfferPeriod = item.OfferPeriod, // Assuming this field exists in MenuItemDetails
                 OfferDetails = item.OfferDetails, // Assuming this field exists in MenuItemDetails

@@ -71,23 +71,6 @@ namespace RMSServiceAPI.Controllers
         {
             try
             {
-                byte[] imageBytes = Array.Empty<byte>(); // Creates an empty byte array.
-
-                // Ensure the special event details are valid
-                if (specialEventDto == null)
-                {
-                    throw new CustomInvalidOperationException("Special event details cannot be null.");
-                }
-                if (specialEventDto.ImageData != null && specialEventDto.ImageData.Length > 0)
-                {
-                    // Process the image file
-                    using (var stream = new MemoryStream())
-                    {
-                        await specialEventDto.ImageData.CopyToAsync(stream);
-                        imageBytes = stream.ToArray();
-                        // Handle the byte array (e.g., save to file or database)
-                    }
-                }
                 // Validate that all required properties are not null or empty
                 if (string.IsNullOrWhiteSpace(specialEventDto.EventName) ||
                     string.IsNullOrWhiteSpace(specialEventDto.Location) ||
@@ -96,7 +79,7 @@ namespace RMSServiceAPI.Controllers
                     throw new CustomInvalidOperationException("All required properties must be provided.");
                 }
 
-                var addedEvent = await _homePageService.AddSpecialEventAsync(specialEventDto, imageBytes);
+                var addedEvent = await _homePageService.AddSpecialEventAsync(specialEventDto);
 
                 var baseResponse = new BaseResponse<SpecialEventDetails>(
                     addedEvent,

@@ -16,10 +16,10 @@ namespace DomainLayer.Models.DataModels.MenuManagementModels
         public decimal? DiscountPercentage { get; set; }
         public string? ImageUrl { get; set; }
 
-        public byte[]? ImageData { get; set; }  // Store the image as a byte array.
+        public string? ImagePath { get; set; }  
         public string? OfferPeriod { get; set; }
         public string? OfferDetails { get; set; }
-        public bool? IsSpecialOffer { get; set; } // Flag to indicate special offer
+        public bool? IsSpecialOffer { get; set; } 
         public string? OrderLink { get; set; }
         public Guid CategoryId { get; set; }
         public MenuCategoryDetails Category { get; set; }

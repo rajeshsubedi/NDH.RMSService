@@ -13,7 +13,7 @@ namespace ServicesLayer.ServiceInterfaces
     {
         Task<IEnumerable<MenuItemDetails>> GetSpecialOffersAsync();
         Task<IEnumerable<SpecialEventDetails>> GetSpecialEventsAsync();
-        Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto, byte[] imageByte);
+        Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto);
         Task<List<MenuItemDetails>> SearchFoodItemsAsync(string name, string description);
 
     }

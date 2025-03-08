@@ -28,7 +28,7 @@ namespace ServicesLayer.ServiceImplementations
         {
             return await _repository.GetSpecialEventsAsync();
         }
-        public async Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto, byte[] imagebyte)
+        public async Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto)
         {
             if (specialEventDto == null)
             {
@@ -41,7 +41,7 @@ namespace ServicesLayer.ServiceImplementations
             specialEventDetails.Description = specialEventDto.Description;
             specialEventDetails.Location = specialEventDto.Location;
             specialEventDetails.ImageUrl = specialEventDto.ImageUrl;
-            specialEventDetails.ImageData = imagebyte;
+            specialEventDetails.ImagePath = specialEventDto.ImagePath;
             await _repository.AddSpecialEventAsync(specialEventDetails);
 
             return specialEventDetails;

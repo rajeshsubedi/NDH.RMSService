@@ -2,7 +2,6 @@
 using DomainLayer.Models.DataModels.MenuManagementModels;
 using DomainLayer.Models.DataModels.OrderManagementModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +20,6 @@ namespace DataAccessLayer.Infrastructure.Data
         public DbSet<OrderedItemsDetails> OrderItemDetails { get; set; }
         public DbSet<DeliveryAddressDetails> DeliveryAddressDetails { get; set; }
         public DbSet<PaymentOptionDetails> PaymentDetails { get; set; }
-
-
-
 
 
 
@@ -89,7 +85,7 @@ namespace DataAccessLayer.Infrastructure.Data
                 entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(18,2)");
                 entity.Property(e => e.DiscountPercentage).HasColumnType("decimal(5,2)");
                 entity.Property(e => e.ImageUrl).HasColumnType("nvarchar(1024)");
-                entity.Property(e => e.ImageData).HasColumnType("VARBINARY(MAX)");
+                entity.Property(e => e.ImagePath).HasColumnType("nvarchar(1024)");
                 entity.Property(e => e.OfferPeriod).HasColumnType("nvarchar(256)");
                 entity.Property(e => e.OfferDetails).HasColumnType("nvarchar(500)");
                 entity.Property(e => e.IsSpecialOffer).HasMaxLength(10).HasColumnType("bit");
@@ -106,14 +102,14 @@ namespace DataAccessLayer.Infrastructure.Data
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(256).HasColumnType("nvarchar(256)");
                 entity.Property(e => e.Description).HasMaxLength(500).HasColumnType("nvarchar(500)");
                 entity.Property(e => e.ImageUrl).HasMaxLength(1024).HasColumnType("nvarchar(1024)");
-                entity.Property(e => e.ImageData).HasColumnType("VARBINARY(MAX)");
+                entity.Property(e => e.ImagePath).HasColumnType("nvarchar(1024)");
                 entity.HasMany(c => c.FoodItems)
                     .WithOne(e => e.Category)
                     .HasForeignKey(e => e.CategoryId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-        
+
             modelBuilder.Entity<SpecialEventDetails>()
                 .HasKey(e => e.EventId); // Configure primary key
 

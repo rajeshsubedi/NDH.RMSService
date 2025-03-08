@@ -23,7 +23,7 @@ namespace ServicesLayer.ServiceImplementations
             _menuManagementRepo = menuManagementRepo;
         }
 
-        public async Task<BaseResponse<Guid>> AddFoodCategoryAsync(FoodCategoryRequestDTO categoryDto, byte[] imageBytes)
+        public async Task<BaseResponse<Guid>> AddFoodCategoryAsync(FoodCategoryRequestDTO categoryDto)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace ServicesLayer.ServiceImplementations
                 categoryDetail.CategoryId = Guid.NewGuid();
                 categoryDetail.Name = categoryDto.Name;
                 categoryDetail.ImageUrl = categoryDto.ImageUrl;
-                categoryDetail.ImageData = imageBytes;
+                categoryDetail.ImagePath = categoryDetail.ImagePath;
                 categoryDetail.Description = categoryDto.Description;
                 await _menuManagementRepo.AddFoodCategoryAsync(categoryDetail);
                 await _menuManagementRepo.SaveChangesAsync();
@@ -77,7 +77,7 @@ namespace ServicesLayer.ServiceImplementations
                 CategoryId = cat.CategoryId,
                 Name = cat.Name,
                 Description = cat.Description,
-                ImageData = cat.ImageData,  // Directly map byte array for image data
+                ImagePath = cat.ImagePath,  
                 FoodItems = cat.FoodItems
                     .Select(item => new FoodItemResponseDTO
                     {
@@ -86,7 +86,7 @@ namespace ServicesLayer.ServiceImplementations
                         Description = item.Description,
                         Price = item.Price,
                         DiscountPercentage = item.DiscountPercentage,
-                        ImageData = item.ImageData,
+                        ImagePath = item.ImagePath,
                         // Add other properties as needed
                     }).ToList()
             }).ToList();
@@ -103,7 +103,7 @@ namespace ServicesLayer.ServiceImplementations
             //    CategoryId = category.CategoryId,
             //    Name = category.Name,
             //    Description = category.Description,
-            //    ImageData = category.ImageData,
+            //    ImagePath = category.ImagePath,
 
             //    // Map associated food items
             //    FoodItems = category.FoodItems.Select(item => new FoodItemResponseDTO
@@ -113,7 +113,7 @@ namespace ServicesLayer.ServiceImplementations
             //        Description = item.Description,
             //        Price = item.Price,
             //        DiscountPercentage = item.DiscountPercentage,
-            //        ImageData = item.ImageData,
+            //        ImagePath = item.ImagePath,
             //        OfferPeriod = item.OfferPeriod,
             //        OfferDetails = item.OfferDetails,
             //        IsSpecialOffer = item.IsSpecialOffer,
@@ -125,7 +125,7 @@ namespace ServicesLayer.ServiceImplementations
             return categories;
         }
 
-        public async Task<BaseResponse<Guid>> AddFoodItemAsync(FoodItemRequestDTO foodItemDto, Guid categoryId, byte[] imageBytes)
+        public async Task<BaseResponse<Guid>> AddFoodItemAsync(FoodItemRequestDTO foodItemDto, Guid categoryId)
         {
             try
             {
@@ -147,7 +147,7 @@ namespace ServicesLayer.ServiceImplementations
                 foodItemDetail.Description = foodItemDto.Description;
                 foodItemDetail.Price = foodItemDto.Price;
                 foodItemDetail.ImageUrl = foodItemDto.ImageUrl;
-                foodItemDetail.ImageData = imageBytes;
+                foodItemDetail.ImagePath = foodItemDto.ImagePath;
                 foodItemDetail.IsSpecialOffer = foodItemDto.IsSpecialOffer;
                 foodItemDetail.CategoryId = categoryId;
                 await _menuManagementRepo.AddFoodItemAsync(foodItemDetail);
@@ -189,7 +189,7 @@ namespace ServicesLayer.ServiceImplementations
                 Description = item.Description,
                 Price = item.Price,
                 DiscountPercentage = item.DiscountPercentage,
-                ImageData = item.ImageData,  // Assuming ImageData is stored as a byte array
+                ImagePath = item.ImagePath,  
                 OfferPeriod = item.OfferPeriod,
                 OfferDetails = item.OfferDetails,
                 IsSpecialOffer = item.IsSpecialOffer,

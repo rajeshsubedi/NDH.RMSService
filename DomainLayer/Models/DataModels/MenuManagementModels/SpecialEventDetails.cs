@@ -19,6 +19,6 @@ namespace DomainLayer.Models.DataModels.MenuManagementModels
         public string Description { get; set; }
 
         public string? ImageUrl { get; set; }
-        public byte[]? ImageData { get; set; }  // Store the image as a byte array.
+        public string? ImagePath { get; set; }  
     }
 }
