@@ -5,6 +5,7 @@ using DomainLayer.Wrappers.GlobalResponse;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using Serilog;
 using ServicesLayer.ServiceInterface;
 using ServicesLayer.ServiceInterfaces;
@@ -163,7 +164,7 @@ namespace RMSServiceAPI.Controllers
                     var clientUrl = _configuration["ApplicationBaseURLS:RMSClientUrl"];
                     var redirectUrl = $"{clientUrl}";
                     //var redirectUrl = $"https://www.youtube.com/";
-
+                    Response.Headers.Add("IsVerified", $"true");
                     return Redirect(redirectUrl);
                 }
                 else

@@ -71,6 +71,10 @@ namespace RMSServiceAPI.Controllers
                     {
                         throw new NotFoundException("No food categories found.");
                     }
+                    if (!categories.Any() || categories.All(c => c.FoodItems.Count == 0))
+                    {
+                        throw new NotFoundException("No food items found.");
+                    }
 
                     result = categories;
                 }
@@ -81,7 +85,7 @@ namespace RMSServiceAPI.Controllers
 
                     if (allItems == null || !allItems.Any())
                     {
-                        throw new NotFoundException("No food items found.");
+                        throw new NotFoundException();
                     }
 
                     result = allItems;
@@ -89,6 +93,11 @@ namespace RMSServiceAPI.Controllers
 
                 // Return success response
                 return new BaseResponse<object>(result, HttpStatusCode.OK, true, "Food items retrieved successfully.");
+            }
+            catch (NotFoundException ex)
+            {
+                Log.Error("An error occurred while retrieving food items.", ex);
+                throw new NotFoundException("No food items found.");
             }
             catch (Exception ex)
             {

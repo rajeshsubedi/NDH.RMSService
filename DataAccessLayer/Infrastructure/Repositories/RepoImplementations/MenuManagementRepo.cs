@@ -40,6 +40,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         public async Task<MenuCategoryDetails> GetAllFoodItemsByCategoryId(Guid categoryId)
         {
             return await _context.MenuCategories
+                .Include(c => c.FoodItems)
                  .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }
 
