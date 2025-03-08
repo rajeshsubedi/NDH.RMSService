@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using DomainLayer.Exceptions;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -21,31 +22,44 @@ namespace RMSServiceAPI.CustomMiddlewareExceptions
             // Retrieve the Authorization header from the request
             var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
 
-            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrEmpty(authHeader))
             {
-                // Extract the token by removing "Bearer "
-                var token = authHeader.Substring("Bearer ".Length).Trim();
-
-                // Validate the token
-                if (!await ValidateTokenAsync(token))
-                {
-                    // If the token is invalid, return Unauthorized
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await context.Response.WriteAsync("Invalid token");
-                    return;
-                }
+                // If Authorization header is missing, return 400 Bad Request
+                throw new UserUnauthenticatedException("Invalid request: Missing Authorization header.");
             }
-            else if (!string.IsNullOrEmpty(authHeader))
+
+            if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             {
-                // If Authorization header is present but doesn't start with "Bearer ", return Unauthorized
+                // If Authorization header doesn't start with "Bearer ", return 401 Unauthorized
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                await context.Response.WriteAsync("Invalid Authorization header format. Expected 'Bearer <token>'");
+                await context.Response.WriteAsync("Unauthorized: Invalid Authorization header format. Expected 'Bearer <token>'.");
                 return;
             }
 
-            // Proceed with the next middleware
+            // Extract the token by removing "Bearer "
+            var token = authHeader.Substring("Bearer ".Length).Trim();
+
+            if (string.IsNullOrEmpty(token))
+            {
+                // If token is empty after removing "Bearer ", return 401 Unauthorized
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.Response.WriteAsync("Unauthorized: Token is missing.");
+                return;
+            }
+
+            // Validate the token
+            if (!await ValidateTokenAsync(token))
+            {
+                // If the token is invalid, return 403 Forbidden
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await context.Response.WriteAsync("Forbidden: Invalid or expired token.");
+                return;
+            }
+
+            // Proceed with the next middleware if everything is valid
             await _next(context);
         }
+
 
 
         private async Task<bool> ValidateTokenAsync(string token)
