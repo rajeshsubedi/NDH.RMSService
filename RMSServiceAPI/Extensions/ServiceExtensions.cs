@@ -41,6 +41,8 @@ namespace RMSServiceAPI.Extensions
 
         public static void ServicesRegister(this IServiceCollection collection)
         {
+            collection.AddHttpContextAccessor();
+
             collection.AddScoped<IUserAuthenticationRepo, UserAuthenticationRepo>();
             collection.AddScoped<IUserAuthenticationService, UserAuthenticationService>();
             collection.AddScoped<IHomepageRepo, HomePageRepo>();
@@ -50,7 +52,7 @@ namespace RMSServiceAPI.Extensions
             collection.AddScoped<IOrderManagementRepo, OrderManagementRepo>();
             collection.AddScoped<IOrderManagementService, OrderManagementService>();
             collection.AddScoped<IEmailService, EmailService>();
-            collection.AddScoped<JwtAuthorizationFilter>();
+            collection.AddSingleton<JwtAuthorizationFilter>();
         }
 
         public static void ConfigureSeriLogs(this IServiceCollection collection, IConfiguration configuration)
