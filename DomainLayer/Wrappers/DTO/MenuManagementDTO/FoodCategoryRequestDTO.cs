@@ -13,7 +13,7 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
         public string Name { get; set; }
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
-        public IFormFile? ImageData { get; set; }  // Store the image as a byte array.
+        public string? ImagePath { get; set; }  
     }
 
     public class FoodCategoryResponseDTO
@@ -21,7 +21,7 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
         public Guid CategoryId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public byte[]? ImageData { get; set; }  // Store the image as a byte array.
+        public string? ImagePath { get; set; }  
         public string? ImageUrl { get; set; }
         public List<FoodItemResponseDTO>? FoodItems { get; set; }
 

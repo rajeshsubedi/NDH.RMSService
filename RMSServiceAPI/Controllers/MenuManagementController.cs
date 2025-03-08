@@ -24,26 +24,11 @@ namespace RMSServiceAPI.Controllers
         [HttpPost("add-food-category")]
         public async Task<BaseResponse<Guid>> AddFoodCategory([FromForm] FoodCategoryRequestDTO categoryDto)
         {
-            byte[] imageBytes = Array.Empty<byte>(); // Creates an empty byte array.
             try
             {
-                if (string.IsNullOrEmpty(categoryDto.Name) || string.IsNullOrEmpty(categoryDto.Description))
-                {
-                    throw new CustomInvalidOperationException("All fields are required.");
-                }
-
-                if (categoryDto.ImageData != null)
-                {
-                    // Process the image file
-                    using (var stream = new MemoryStream())
-                    {
-                        await categoryDto.ImageData.CopyToAsync(stream);
-                        imageBytes = stream.ToArray();
-                        // Handle the byte array (e.g., save to file or database)
-                    }
-                }
+        
                 // Add the food category
-                var response = await _menuManagementService.AddFoodCategoryAsync(categoryDto, imageBytes);
+                var response = await _menuManagementService.AddFoodCategoryAsync(categoryDto);
 
                 // Return the success response
                 return new BaseResponse<Guid>(
@@ -172,8 +157,6 @@ namespace RMSServiceAPI.Controllers
         [HttpPost("add-food-item")]
         public async Task<BaseResponse<Guid>> AddFoodItem([FromForm] FoodItemRequestDTO foodItemDto)
         {
-            byte[] imageBytes = Array.Empty<byte>(); // Creates an empty byte array.
-
             try
             {
                 if (string.IsNullOrEmpty(foodItemDto.Name) || string.IsNullOrEmpty(foodItemDto.Description) || foodItemDto.CategoryId == Guid.Empty)
@@ -184,18 +167,9 @@ namespace RMSServiceAPI.Controllers
                 {
                     throw new CustomInvalidOperationException("Price must be greater than zero.");
                 }
-                if (foodItemDto.ImageData != null && foodItemDto.ImageData.Length > 0)
-                {
-                    // Process the image file
-                    using (var stream = new MemoryStream())
-                    {
-                        await foodItemDto.ImageData.CopyToAsync(stream);
-                        imageBytes = stream.ToArray();
-                        // Handle the byte array (e.g., save to file or database)
-                    }
-                }
+              
                 // Add the food item
-                var response = await _menuManagementService.AddFoodItemAsync(foodItemDto, foodItemDto.CategoryId, imageBytes);
+                var response = await _menuManagementService.AddFoodItemAsync(foodItemDto, foodItemDto.CategoryId);
 
                 // Return the success response
                 return new BaseResponse<Guid>(
