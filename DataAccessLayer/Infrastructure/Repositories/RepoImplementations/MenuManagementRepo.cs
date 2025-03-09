@@ -37,11 +37,11 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<MenuCategoryDetails> GetAllFoodItemsByCategoryId(Guid categoryId)
+        public async Task<MenuCategoryDetails?> GetAllFoodItemsByCategoryId(Guid categoryId)
         {
             return await _context.MenuCategories
                 .Include(c => c.FoodItems)
-                 .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
+                .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }
 
         public async Task<List<MenuCategoryDetails>> GetFoodCategoriesByIdOrNameAsync(Guid? id, string name)
@@ -136,6 +136,24 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
 
             return foodItemDTOs;
         }
+
+        public async Task<List<FoodCategoryResponseDTO>> GetAllFoodCategoriesOnlyAsync()
+        {
+            var foodCategories = await _context.MenuCategories
+               .Select(category => new FoodCategoryResponseDTO
+               {
+                   CategoryId = category.CategoryId,
+                   Name = category.Name,
+                   Description = category.Description,
+                   ImagePath = category.ImagePath,
+                   ImageUrl = category.ImageUrl
+               })
+               .ToListAsync();
+
+            return foodCategories;
+        }
+
+
         public async Task<List<MenuItemDetails>> GetFoodItemsByIdOrNameAsync(Guid? itemId, string name)
         {
             IQueryable<MenuItemDetails> query = _context.MenuItems;
