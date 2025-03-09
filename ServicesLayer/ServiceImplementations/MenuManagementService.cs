@@ -58,41 +58,43 @@ namespace ServicesLayer.ServiceImplementations
         }
 
 
-        public async Task<List<FoodCategoryResponseDTO>> GetAllFoodItemsWithCategoryId(Guid categoryId)
+        public async Task<FoodCategoryResponseDTO?> GetAllFoodItemsWithCategoryId(Guid categoryId)
         {
-            // Fetch categories from repository
-            var categories = await _menuManagementRepo.GetAllFoodItemsByCategoryId(categoryId);
+            // Fetch category from repository
+            var category = await _menuManagementRepo.GetAllFoodItemsByCategoryId(categoryId);
 
-            if (categories == null)
+            if (category == null)
             {
-                return new List<FoodCategoryResponseDTO>(); // Return empty list if no category found
+                return null; // Return null if no category is found
             }
-            var categoryDTO = new FoodCategoryResponseDTO
+
+            return new FoodCategoryResponseDTO
             {
-                CategoryId = categories.CategoryId,
-                Name = categories.Name,
-                Description = categories.Description,
-                ImagePath = categories.ImagePath,
+                CategoryId = category.CategoryId,
+                Name = category.Name,
+                Description = category.Description,
+                ImagePath = category.ImagePath,
 
-                // Map associated food items, handle null case
-                FoodItems = categories.FoodItems?.Select(item => new FoodItemResponseDTO
-                {
-                    ItemId = item.ItemId,
-                    Name = item.Name,
-                    Description = item.Description,
-                    Price = item.Price,
-                    DiscountPercentage = item.DiscountPercentage,
-                    ImagePath = item.ImagePath,
-                    OfferPeriod = item.OfferPeriod,
-                    OfferDetails = item.OfferDetails,
-                    IsSpecialOffer = item.IsSpecialOffer,
-                    OrderLink = item.OrderLink,
-                    CategoryId = item.CategoryId
-                }).ToList() ?? new List<FoodItemResponseDTO>() // Return empty list if null
+                // Map associated food items
+                FoodItems = category.FoodItems?.Any() == true
+                    ? category.FoodItems.Select(item => new FoodItemResponseDTO
+                    {
+                        ItemId = item.ItemId,
+                        Name = item.Name,
+                        Description = item.Description,
+                        Price = item.Price,
+                        DiscountPercentage = item.DiscountPercentage,
+                        ImagePath = item.ImagePath,
+                        OfferPeriod = item.OfferPeriod,
+                        OfferDetails = item.OfferDetails,
+                        IsSpecialOffer = item.IsSpecialOffer,
+                        OrderLink = item.OrderLink,
+                        CategoryId = item.CategoryId
+                    }).ToList()
+                    : new List<FoodItemResponseDTO>() // Empty list if no items
             };
-
-            return new List<FoodCategoryResponseDTO> { categoryDTO };
         }
+
 
         public async Task<List<FoodCategoryResponseDTO>> GetFoodCategoriesByIdOrNameAsync(Guid? id, string name)
         {
@@ -175,6 +177,15 @@ namespace ServicesLayer.ServiceImplementations
         {
             // Fetch all food items from repository
             var foodItems = await _menuManagementRepo.GetAllFoodItemsAsync();
+
+            // Perform any mapping or additional logic if necessary
+            return foodItems;
+        }
+
+        public async Task<List<FoodCategoryResponseDTO>> GetAllFoodCategoriesOnlyAsync()
+        {
+            // Fetch all food items from repository
+            var foodItems = await _menuManagementRepo.GetAllFoodCategoriesOnlyAsync();
 
             // Perform any mapping or additional logic if necessary
             return foodItems;

@@ -22,7 +22,7 @@ namespace RMSServiceAPI.Controllers
             _menuManagementService = menuManagementService;
         }
 
-        [ServiceFilter(typeof(JwtAuthorizationFilter))]
+        //[ServiceFilter(typeof(JwtAuthorizationFilter))]
         [HttpPost("add-food-category")]
         public async Task<BaseResponse<Guid>> AddFoodCategory([FromForm] FoodCategoryRequestDTO categoryDto)
         {
@@ -63,7 +63,6 @@ namespace RMSServiceAPI.Controllers
             try
             {
                 object result;
-
                 if (categoryId.HasValue)
                 {
                     // Fetch food items by category ID
@@ -73,12 +72,13 @@ namespace RMSServiceAPI.Controllers
                     {
                         throw new NotFoundException("No food categories found.");
                     }
-                    if (!categories.Any() || categories.All(c => c.FoodItems.Count == 0))
+                    if (!categories.FoodItems.Any())
                     {
                         throw new NotFoundException("No food items found.");
                     }
-
                     result = categories;
+                    return new BaseResponse<object>(result, HttpStatusCode.OK, true, "Food items retrieved successfully with that category.");
+
                 }
                 else
                 {
@@ -89,12 +89,12 @@ namespace RMSServiceAPI.Controllers
                     {
                         throw new NotFoundException();
                     }
-
                     result = allItems;
+                    return new BaseResponse<object>(result, HttpStatusCode.OK, true, "All Food categories and food items retrieved successfully.");
+
                 }
 
                 // Return success response
-                return new BaseResponse<object>(result, HttpStatusCode.OK, true, "Food items retrieved successfully.");
             }
             catch (NotFoundException ex)
             {
@@ -108,7 +108,34 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
+        // GET: api/food-category/all
+        [HttpGet("get-all-foodcategoriesOnly")]
+        public async Task<BaseResponse<List<FoodCategoryResponseDTO>>> GetAllFoodCategories()
+        {
+            try
+            {
+                    // Fetch all food items
+                    var allItems = await _menuManagementService.GetAllFoodCategoriesOnlyAsync();
 
+                    if (allItems == null || !allItems.Any())
+                    {
+                        throw new NotFoundException();
+                    }
+
+                // Return success response
+                return new BaseResponse<List<FoodCategoryResponseDTO>>(allItems, HttpStatusCode.OK, true, "All Food Categories Only retrieved successfully.");
+            }
+            catch (NotFoundException ex)
+            {
+                Log.Error("An error occurred while retrieving food items.", ex);
+                throw new NotFoundException("No food items found.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error("An error occurred while retrieving food items.", ex);
+                throw new CustomInvalidOperationException("An error occurred while retrieving food items.");
+            }
+        }
         [HttpGet("filter-categories")]
         public async Task<BaseResponse<List<FoodCategoryResponseDTO>>> GetFoodCategoriesByIdOrName([FromQuery] Guid? categoryId, [FromQuery] string name)
         {
