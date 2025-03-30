@@ -42,13 +42,17 @@ namespace ServicesLayer.ServiceImplementations
                 }
                 if (BCrypt.Net.BCrypt.Verify(loginModelDTO.Password, user.PasswordHash))
                 {
+                    var refreshTokenValue = GenerateRefreshToken();
+                    var refreshTokenExpirationValue = GetTokenExpiration();
+                    user.RefreshToken = refreshTokenValue;
+                    user.TokenExpiration = refreshTokenExpirationValue;
                     await _userRepository.AddOrUpdateRefreshTokenAsync(user);
                     var userResponseDTO = new UserLoginResponseDTO
                     {
                         UserId = user.UserId,
                         JwtToken = GenerateJSONWebToken(user),
-                        RefreshToken = GenerateRefreshToken(),
-                        RefreshTokenExpiration = GetTokenExpiration()
+                        RefreshToken = refreshTokenValue,
+                        RefreshTokenExpiration = refreshTokenExpirationValue
                     };
 
                     return userResponseDTO;
