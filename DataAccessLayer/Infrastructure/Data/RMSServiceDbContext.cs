@@ -1,4 +1,5 @@
 ﻿using DomainLayer.Models.DataModels.AuthenticationModels;
+using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
 using DomainLayer.Models.DataModels.OrderManagementModels;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ namespace DataAccessLayer.Infrastructure.Data
         public DbSet<OrderedItemsDetails> OrderItemDetails { get; set; }
         public DbSet<DeliveryAddressDetails> DeliveryAddressDetails { get; set; }
         public DbSet<PaymentOptionDetails> PaymentDetails { get; set; }
+        public DbSet<HomepageSpecialGroups> HomepageSpecialGroups { get; set; }
 
 
 
@@ -169,6 +171,22 @@ namespace DataAccessLayer.Infrastructure.Data
                 entity.HasOne(e => e.Order)
                 .WithOne(o => o.PaymentOption) // Updated to WithOne
                 .HasForeignKey<PaymentOptionDetails>(e => e.OrderId); // Foreign key in PaymentOptionDetails
+            });
+
+            modelBuilder.Entity<HomepageSpecialGroups>(entity => {
+                entity.HasKey(e => e.GroupId);
+                entity.Property(e => e.GroupName).IsRequired().HasColumnType("nvarchar(100)");
+                entity.Property(e => e.GroupDescription).IsRequired().HasColumnType("nvarchar(100)");
+                entity.Property(e => e.GroupType).IsRequired().HasColumnType("nvarchar(100)");
+                entity.Property(e => e.StartDate).HasMaxLength(100).HasColumnType("datetime2");
+                entity.Property(e => e.EndDate).HasMaxLength(50).HasColumnType("datetime2");
+                entity.Property(e => e.Status).HasMaxLength(50).HasColumnType("nvarchar(100)");
+                entity.Property(e => e.CreatedAt).HasMaxLength(20).HasColumnType("datetime2");
+                entity.Property(e => e.UpdatedAt).HasMaxLength(50).HasColumnType("datetime2");
+                entity.Property(e => e.CreatedBy).HasColumnType("int");
+                entity.Property(e => e.UpdatedBy).HasColumnType("int");
+                entity.Property(e => e.ImageUrl).HasColumnType("nvarchar(100)");
+
             });
 
             modelBuilder.Entity<DeliveryAddressDetails>(entity => {

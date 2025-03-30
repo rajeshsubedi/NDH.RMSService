@@ -1,5 +1,7 @@
 ﻿using DomainLayer.Exceptions;
+using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
+using DomainLayer.Wrappers.DTO.HomepageManagementDTO;
 using DomainLayer.Wrappers.DTO.MenuManagementDTO;
 using DomainLayer.Wrappers.GlobalResponse;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +21,67 @@ namespace RMSServiceAPI.Controllers
         {
             _homePageService = homePageService ?? throw new ArgumentNullException(nameof(homePageService));
         }
+
+        // POST: api/HomepageSpecialGroups/add
+        [HttpPost("add-specialgroup")]
+        public async Task<BaseResponse<HomepageSpecialGroups>> AddHomepageSpecialGroup([FromBody] HomepageSpecialGroupDTO homepageSpecialGroupDto)
+        {
+            try
+            {
+                // Validate input data
+                if (string.IsNullOrWhiteSpace(homepageSpecialGroupDto.GroupName) ||
+                    string.IsNullOrWhiteSpace(homepageSpecialGroupDto.GroupDescription))
+                {
+                    throw new CustomInvalidOperationException("All required fields must be provided.");
+                }
+
+                var addedGroup = await _homePageService.AddHomepageSpecialGroupAsync(homepageSpecialGroupDto);
+
+                var baseResponse = new BaseResponse<HomepageSpecialGroups>(
+                    addedGroup,
+                    HttpStatusCode.Created,
+                    true,
+                    "Special group added successfully"
+                );
+
+                return baseResponse;
+            }
+            catch (CustomInvalidOperationException)
+            {
+                Log.Error("Add special food group failed");
+                throw; // This will be caught by the middleware
+            }
+            catch (Exception)
+            {
+                Log.Error("An error occurred while adding the special food group.");
+                throw new CustomInvalidOperationException("An error occurred while adding the special food group.");
+            }
+        }
+
+        // GET: api/HomepageSpecialGroups
+        [HttpGet("get-specialgroup")]
+        public async Task<BaseResponse<List<HomepageSpecialGroups>>> GetAllHomepageSpecialGroups()
+        {
+            try
+            {
+                var specialGroups = await _homePageService.GetAllHomepageSpecialGroupsAsync();
+
+                var baseResponse = new BaseResponse<List<HomepageSpecialGroups>>(
+                    specialGroups,
+                    HttpStatusCode.OK,
+                    true,
+                    "Special food groups fetched successfully"
+                );
+
+                return baseResponse;
+            }
+            catch (Exception)
+            {
+                Log.Error("An error occurred while fetching the special food groups.");
+                throw new CustomInvalidOperationException("An error occurred while fetching the special food groups.");
+            }
+        }
+
 
         [HttpGet("special-offers")]
         public async Task<BaseResponse<IEnumerable<MenuItemDetails>>> GetSpecialOffers()
@@ -130,6 +193,7 @@ namespace RMSServiceAPI.Controllers
                 throw new CustomInvalidOperationException("An error occurred while searching for food items.");
             }
         }
+
 
     }
 }
