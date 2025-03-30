@@ -1,5 +1,6 @@
 ﻿using DataAccessLayer.Infrastructure.Data;
 using DataAccessLayer.Infrastructure.Repositories.RepoInterfaces;
+using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,6 +18,17 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         public HomePageRepo(RMSServiceDbContext context)
         {
             _context = context;
+        }
+
+        public async Task AddHomepageSpecialGroupAsync(HomepageSpecialGroups homepageSpecialGroup)
+        {
+            _context.HomepageSpecialGroups.Add(homepageSpecialGroup);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<HomepageSpecialGroups>> GetAllHomepageSpecialGroupsAsync()
+        {
+            return await _context.HomepageSpecialGroups.ToListAsync();
         }
 
         public async Task<IEnumerable<MenuItemDetails>> GetSpecialOffersAsync()

@@ -1,4 +1,5 @@
-﻿using DomainLayer.Models.DataModels.MenuManagementModels;
+﻿using DomainLayer.Models.DataModels.HomepageManagementModels;
+using DomainLayer.Models.DataModels.MenuManagementModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoInterfaces
 {
     public interface IHomepageRepo
     {
+        Task AddHomepageSpecialGroupAsync(HomepageSpecialGroups homepageSpecialGroup);
+        Task<List<HomepageSpecialGroups>> GetAllHomepageSpecialGroupsAsync();
         Task<IEnumerable<MenuItemDetails>> GetSpecialOffersAsync();
         Task<IEnumerable<SpecialEventDetails>> GetSpecialEventsAsync();
         Task AddSpecialEventAsync(SpecialEventDetails specialEventDetails);

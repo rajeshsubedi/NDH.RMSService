@@ -85,6 +85,7 @@ namespace ServicesLayer.ServiceImplementations
                         Price = item.Price,
                         DiscountPercentage = item.DiscountPercentage,
                         ImagePath = item.ImagePath,
+                        ImageUrl = item.ImageUrl,
                         OfferPeriod = item.OfferPeriod,
                         OfferDetails = item.OfferDetails,
                         IsSpecialOffer = item.IsSpecialOffer,
