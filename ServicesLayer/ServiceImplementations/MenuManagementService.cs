@@ -1,5 +1,6 @@
 ﻿using DataAccessLayer.Infrastructure.Repositories.RepoInterfaces;
 using DomainLayer.Exceptions;
+using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
 using DomainLayer.Wrappers.DTO.MenuManagementDTO;
 using DomainLayer.Wrappers.GlobalResponse;
@@ -57,7 +58,6 @@ namespace ServicesLayer.ServiceImplementations
             }
         }
 
-
         public async Task<FoodCategoryResponseDTO?> GetAllFoodItemsWithCategoryId(Guid categoryId)
         {
             // Fetch category from repository
@@ -86,16 +86,13 @@ namespace ServicesLayer.ServiceImplementations
                         DiscountPercentage = item.DiscountPercentage,
                         ImagePath = item.ImagePath,
                         ImageUrl = item.ImageUrl,
-                        OfferPeriod = item.OfferPeriod,
-                        OfferDetails = item.OfferDetails,
-                        IsSpecialOffer = item.IsSpecialOffer,
                         OrderLink = item.OrderLink,
-                        CategoryId = item.CategoryId
+                        CategoryId = item.CategoryId,
+             
                     }).ToList()
                     : new List<FoodItemResponseDTO>() // Empty list if no items
             };
         }
-
 
         public async Task<List<FoodCategoryResponseDTO>> GetFoodCategoriesByIdOrNameAsync(Guid? id, string name)
         {
@@ -117,7 +114,7 @@ namespace ServicesLayer.ServiceImplementations
                         Price = item.Price,
                         DiscountPercentage = item.DiscountPercentage,
                         ImagePath = item.ImagePath,
-                        // Add other properties as needed
+                    
                     }).ToList()
             }).ToList();
 
@@ -127,8 +124,6 @@ namespace ServicesLayer.ServiceImplementations
         {
             var categories = await _menuManagementRepo.GetAllCategoriesAndFoodItemsAsync();
 
-         
-
             return categories;
         }
 
@@ -136,35 +131,60 @@ namespace ServicesLayer.ServiceImplementations
         {
             try
             {
-                // Check if the category exists
+                // ✅ Check if category exists
                 var existingCategory = await _menuManagementRepo.GetCategoryByIdAsync(categoryId);
                 if (existingCategory == null)
                 {
                     throw new DuplicateRecordException("The specified category does not exist.");
                 }
-                // Check if a food item with the same name already exists
+
+                // ✅ Check if the food item name already exists
                 var existingFoodItem = await _menuManagementRepo.GetFoodItemByNameAsync(foodItemDto.Name);
                 if (existingFoodItem != null)
                 {
-                    throw new DuplicateRecordException("Food Item name already exists");
+                    throw new DuplicateRecordException("Food Item name already exists.");
                 }
-                var foodItemDetail = new MenuItemDetails();
-                foodItemDetail.ItemId = Guid.NewGuid();
-                foodItemDetail.Name = foodItemDto.Name;
-                foodItemDetail.Description = foodItemDto.Description;
-                foodItemDetail.Price = foodItemDto.Price;
-                foodItemDetail.ImageUrl = foodItemDto.ImageUrl;
-                foodItemDetail.ImagePath = foodItemDto.ImagePath;
-                foodItemDetail.IsSpecialOffer = foodItemDto.IsSpecialOffer;
-                foodItemDetail.CategoryId = categoryId;
+
+                // ✅ Create the new Food Item
+                var foodItemDetail = new MenuItemDetails
+                {
+                    ItemId = Guid.NewGuid(),
+                    Name = foodItemDto.Name,
+                    Description = foodItemDto.Description,
+                    Price = foodItemDto.Price,
+                    ImageUrl = foodItemDto.ImageUrl,
+                    CategoryId = categoryId,
+                    FoodItemSpecialGroups = new List<FoodItemSpecialGroupMap>()
+                };
+
+                // ✅ Assign Special Groups if provided
+                if (foodItemDto.SpecialGroupIds != null && foodItemDto.SpecialGroupIds.Any())
+                {
+                    foreach (var specialGroupId in foodItemDto.SpecialGroupIds)
+                    {
+                        var specialGroup = await _menuManagementRepo.GetSpecialGroupByIdAsync(specialGroupId);
+                        if (specialGroup != null)
+                        {
+                            foodItemDetail.FoodItemSpecialGroups.Add(new FoodItemSpecialGroupMap
+                            {
+                                FoodItemId = foodItemDetail.ItemId,
+                                SpecialGroupId = specialGroup.GroupId
+                            });
+                        }
+                    }
+                }
+
+                // ✅ Save the food item to the DB
                 await _menuManagementRepo.AddFoodItemAsync(foodItemDetail);
+
+                // ✅ Save the changes to the database
                 await _menuManagementRepo.SaveChangesAsync();
 
-                return new BaseResponse<Guid>(foodItemDetail.ItemId, HttpStatusCode.OK, true, "Food item added successfully.");
+                return new BaseResponse<Guid>(foodItemDetail.ItemId, HttpStatusCode.Created, true, "Food item added successfully.");
             }
             catch (DuplicateRecordException ex)
             {
-                Log.Error("Food Item name already exists");
+                Log.Error("Food Item name already exists.");
                 throw;
             }
             catch (Exception ex)
@@ -173,6 +193,7 @@ namespace ServicesLayer.ServiceImplementations
                 throw new CustomInvalidOperationException("An error occurred while adding a food item.");
             }
         }
+
 
         public async Task<List<FoodItemResponseDTO>> GetAllFoodItemsAsync()
         {
@@ -206,9 +227,6 @@ namespace ServicesLayer.ServiceImplementations
                 Price = item.Price,
                 DiscountPercentage = item.DiscountPercentage,
                 ImagePath = item.ImagePath,  
-                OfferPeriod = item.OfferPeriod,
-                OfferDetails = item.OfferDetails,
-                IsSpecialOffer = item.IsSpecialOffer,
                 OrderLink = item.OrderLink,
                 CategoryId = item.CategoryId
             }).ToList();

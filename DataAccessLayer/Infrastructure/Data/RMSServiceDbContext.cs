@@ -21,9 +21,8 @@ namespace DataAccessLayer.Infrastructure.Data
         public DbSet<OrderedItemsDetails> OrderItemDetails { get; set; }
         public DbSet<DeliveryAddressDetails> DeliveryAddressDetails { get; set; }
         public DbSet<PaymentOptionDetails> PaymentDetails { get; set; }
-        public DbSet<HomepageSpecialGroups> HomepageSpecialGroups { get; set; }
-
-
+        public DbSet<HomepageSpecialGroup> HomepageSpecialGroups { get; set; }
+        public DbSet<FoodItemSpecialGroupMap> FoodItemSpecialGroupsMap { get; set; }
 
         private Guid id;
         public RMSServiceDbContext(DbContextOptions<RMSServiceDbContext> options) : base(options)
@@ -88,9 +87,6 @@ namespace DataAccessLayer.Infrastructure.Data
                 entity.Property(e => e.DiscountPercentage).HasColumnType("decimal(5,2)");
                 entity.Property(e => e.ImageUrl).HasColumnType("nvarchar(1024)");
                 entity.Property(e => e.ImagePath).HasColumnType("nvarchar(1024)");
-                entity.Property(e => e.OfferPeriod).HasColumnType("nvarchar(256)");
-                entity.Property(e => e.OfferDetails).HasColumnType("nvarchar(500)");
-                entity.Property(e => e.IsSpecialOffer).HasMaxLength(10).HasColumnType("bit");
                 entity.Property(e => e.OrderLink).HasMaxLength(1024).HasColumnType("nvarchar(1024)");
                 entity.Property(e => e.CategoryId).IsRequired().HasColumnType("uniqueidentifier");
             });
@@ -173,7 +169,7 @@ namespace DataAccessLayer.Infrastructure.Data
                 .HasForeignKey<PaymentOptionDetails>(e => e.OrderId); // Foreign key in PaymentOptionDetails
             });
 
-            modelBuilder.Entity<HomepageSpecialGroups>(entity => {
+            modelBuilder.Entity<HomepageSpecialGroup>(entity => {
                 entity.HasKey(e => e.GroupId);
                 entity.Property(e => e.GroupName).IsRequired().HasColumnType("nvarchar(100)");
                 entity.Property(e => e.GroupDescription).IsRequired().HasColumnType("nvarchar(100)");
@@ -186,8 +182,26 @@ namespace DataAccessLayer.Infrastructure.Data
                 entity.Property(e => e.CreatedBy).HasColumnType("int");
                 entity.Property(e => e.UpdatedBy).HasColumnType("int");
                 entity.Property(e => e.ImageUrl).HasColumnType("nvarchar(100)");
-
+               
             });
+
+            // ✅ Configure Many-to-Many Relationship
+            modelBuilder.Entity<FoodItemSpecialGroupMap>()
+                .HasKey(fsg => new { fsg.FoodItemId, fsg.SpecialGroupId }); // Composite Key
+
+            modelBuilder.Entity<FoodItemSpecialGroupMap>()
+                .HasOne(fsg => fsg.FoodItem)
+                .WithMany(fi => fi.FoodItemSpecialGroups)
+                .HasForeignKey(fsg => fsg.FoodItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<FoodItemSpecialGroupMap>()
+                .HasOne(fsg => fsg.HomepageSpecialGroup)
+                .WithMany(sg => sg.FoodItemSpecialGroups)
+                .HasForeignKey(fsg => fsg.SpecialGroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
 
             modelBuilder.Entity<DeliveryAddressDetails>(entity => {
                 entity.HasKey(e => e.AddressId);

@@ -24,7 +24,7 @@ namespace RMSServiceAPI.Controllers
 
         // POST: api/HomepageSpecialGroups/add
         [HttpPost("add-specialgroup")]
-        public async Task<BaseResponse<HomepageSpecialGroups>> AddHomepageSpecialGroup([FromBody] HomepageSpecialGroupDTO homepageSpecialGroupDto)
+        public async Task<BaseResponse<Guid>> AddHomepageSpecialGroup([FromBody] HomepageSpecialGroupDTO homepageSpecialGroupDto)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace RMSServiceAPI.Controllers
 
                 var addedGroup = await _homePageService.AddHomepageSpecialGroupAsync(homepageSpecialGroupDto);
 
-                var baseResponse = new BaseResponse<HomepageSpecialGroups>(
+                var baseResponse = new BaseResponse<Guid>(
                     addedGroup,
                     HttpStatusCode.Created,
                     true,
@@ -60,13 +60,13 @@ namespace RMSServiceAPI.Controllers
 
         // GET: api/HomepageSpecialGroups
         [HttpGet("get-specialgroup")]
-        public async Task<BaseResponse<List<HomepageSpecialGroups>>> GetAllHomepageSpecialGroups()
+        public async Task<BaseResponse<List<HomepageSpecialGroupResponseDTO>>> GetAllHomepageSpecialGroups()
         {
             try
             {
                 var specialGroups = await _homePageService.GetAllHomepageSpecialGroupsAsync();
 
-                var baseResponse = new BaseResponse<List<HomepageSpecialGroups>>(
+                var baseResponse = new BaseResponse<List<HomepageSpecialGroupResponseDTO>>(
                     specialGroups,
                     HttpStatusCode.OK,
                     true,
@@ -82,29 +82,6 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
-
-        [HttpGet("special-offers")]
-        public async Task<BaseResponse<IEnumerable<MenuItemDetails>>> GetSpecialOffers()
-        {
-            try
-            {
-                var specialOffers = await _homePageService.GetSpecialOffersAsync();
-
-                var baseResponse = new BaseResponse<IEnumerable<MenuItemDetails>>(
-                    specialOffers,
-                    HttpStatusCode.OK,
-                    true,
-                    "Special offers retrieved successfully"
-                );
-
-                return baseResponse;
-            }
-            catch (Exception ex)
-            {
-                Log.Error("An error occurred while fetching special offers.");
-                throw new CustomInvalidOperationException("An error occurred while fetching special offers.");
-            }
-        }
 
         [HttpGet("special-events")]
         public async Task<BaseResponse<IEnumerable<SpecialEventDetails>>> GetSpecialEvents()

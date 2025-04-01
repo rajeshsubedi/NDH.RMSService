@@ -20,49 +20,21 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
             _context = context;
         }
 
-        public async Task AddHomepageSpecialGroupAsync(HomepageSpecialGroups homepageSpecialGroup)
+        public async Task AddHomepageSpecialGroupAsync(HomepageSpecialGroup homepageSpecialGroup)
         {
             _context.HomepageSpecialGroups.Add(homepageSpecialGroup);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<HomepageSpecialGroups>> GetAllHomepageSpecialGroupsAsync()
+        public async Task<List<HomepageSpecialGroup>> GetAllHomepageSpecialGroupsAsync()
         {
             return await _context.HomepageSpecialGroups.ToListAsync();
         }
 
-        public async Task<IEnumerable<MenuItemDetails>> GetSpecialOffersAsync()
+        public async Task<HomepageSpecialGroup> GetHomepageSpecialGroupByNameAsync(string groupName)
         {
-            // Ensure proper querying and handling of nulls
-            if (_context.MenuItems == null)
-            {
-                throw new InvalidOperationException("FoodItems DbSet is not initialized.");
-            }
-
-            return await _context.MenuItems
-                .Where(item => item.IsSpecialOffer == true)
-                .Select(item => new MenuItemDetails
-                {
-                    ItemId = item.ItemId,
-                    Name = item.Name,
-                    Description = item.Description,
-                    Price = item.Price,
-                    DiscountPercentage = item.DiscountPercentage,
-                    ImageUrl = item.ImageUrl,
-                    OfferPeriod = item.OfferPeriod,
-                    OfferDetails = item.OfferDetails,
-                    IsSpecialOffer = item.IsSpecialOffer,
-                    OrderLink = item.OrderLink,
-                    CategoryId = item.CategoryId,
-                    Category = new MenuCategoryDetails
-                    {
-                        CategoryId = item.Category.CategoryId,
-                        Name = item.Category.Name,
-                        Description = item.Category.Description,
-                        ImageUrl = item.Category.ImageUrl
-                    }
-                })
-                .ToListAsync();
+            return await _context.HomepageSpecialGroups
+                .FirstOrDefaultAsync(sg => sg.GroupName == groupName);
         }
 
         public async Task<IEnumerable<SpecialEventDetails>> GetSpecialEventsAsync()

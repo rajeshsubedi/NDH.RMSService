@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Infrastructure.Repositories.RepoInterfaces;
+using DomainLayer.Exceptions;
 using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
 using DomainLayer.Wrappers.DTO.HomepageManagementDTO;
@@ -21,14 +22,22 @@ namespace ServicesLayer.ServiceImplementations
             _repository = repository;
         }
 
-        public async Task<HomepageSpecialGroups> AddHomepageSpecialGroupAsync(HomepageSpecialGroupDTO homepageSpecialGroupDto)
+        public async Task<Guid> AddHomepageSpecialGroupAsync(HomepageSpecialGroupDTO homepageSpecialGroupDto)
         {
             if (homepageSpecialGroupDto == null)
             {
-                throw new ArgumentNullException(nameof(homepageSpecialGroupDto));
+                throw new ArgumentNullException(nameof(homepageSpecialGroupDto), "The provided HomepageSpecialGroupDto cannot be null.");
             }
 
-            var homepageSpecialGroup = new HomepageSpecialGroups
+            // Check if a special group with the same name already exists (optional, based on your business rules)
+            var existingGroup = await _repository.GetHomepageSpecialGroupByNameAsync(homepageSpecialGroupDto.GroupName);
+            if (existingGroup != null)
+            {
+                throw new CustomInvalidOperationException($"A special group with the name '{homepageSpecialGroupDto.GroupName}' already exists.");
+            }
+
+            // Create the HomepageSpecialGroup entity
+            var homepageSpecialGroup = new HomepageSpecialGroup
             {
                 GroupId = Guid.NewGuid(),
                 GroupName = homepageSpecialGroupDto.GroupName,
@@ -37,26 +46,45 @@ namespace ServicesLayer.ServiceImplementations
                 StartDate = homepageSpecialGroupDto.StartDate,
                 EndDate = homepageSpecialGroupDto.EndDate,
                 Status = homepageSpecialGroupDto.Status,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now,
+                CreatedAt = DateTime.UtcNow, // Use UTC time
+                UpdatedAt = DateTime.UtcNow, // Use UTC time
+                IsDiscounted = homepageSpecialGroupDto.IsDiscounted,
+                DiscountedRate = homepageSpecialGroupDto.DiscountedRate,
                 CreatedBy = homepageSpecialGroupDto.CreatedBy,
                 UpdatedBy = homepageSpecialGroupDto.UpdatedBy,
                 ImageUrl = homepageSpecialGroupDto.ImageUrl
             };
 
+            // Add the new group to the database
             await _repository.AddHomepageSpecialGroupAsync(homepageSpecialGroup);
 
-            return homepageSpecialGroup;
+            // Return the GroupId of the newly created special group
+            return homepageSpecialGroup.GroupId;
         }
 
-        public async Task<List<HomepageSpecialGroups>> GetAllHomepageSpecialGroupsAsync()
-        {
-            return await _repository.GetAllHomepageSpecialGroupsAsync();
-        }
 
-        public async Task<IEnumerable<MenuItemDetails>> GetSpecialOffersAsync()
+        public async Task<List<HomepageSpecialGroupResponseDTO>> GetAllHomepageSpecialGroupsAsync()
         {
-            return await _repository.GetSpecialOffersAsync();
+            var specialGroups = await _repository.GetAllHomepageSpecialGroupsAsync();
+
+            // ✅ Map to DTOs using LINQ
+            var specialGroupDtos = specialGroups.Select(group => new HomepageSpecialGroupResponseDTO
+            {
+                Id = group.GroupId,
+                GroupName = group.GroupName,
+                GroupDescription = group.GroupDescription,
+                GroupType = group.GroupType,
+                StartDate = group.StartDate,
+                EndDate = group.EndDate,
+                Status = group.Status,
+                IsDiscounted = group.IsDiscounted,
+                DiscountedRate = group.DiscountedRate,
+                CreatedBy = group.CreatedBy,
+                UpdatedBy = group.UpdatedBy,
+                ImageUrl = group.ImageUrl
+            }).ToList();
+
+            return specialGroupDtos;
         }
 
         public async Task<IEnumerable<SpecialEventDetails>> GetSpecialEventsAsync()

@@ -1,6 +1,8 @@
 ﻿using DataAccessLayer.Infrastructure.Data;
 using DataAccessLayer.Infrastructure.Repositories.RepoInterfaces;
+using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
+using DomainLayer.Wrappers.DTO.HomepageManagementDTO;
 using DomainLayer.Wrappers.DTO.MenuManagementDTO;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -66,7 +68,10 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         {
             // Fetch all categories and include the related food items for each category
             var categories = await _context.MenuCategories
-                .Include(c => c.FoodItems) // Include the food items associated with each category
+                .AsNoTracking()
+                .Include(c => c.FoodItems)
+                    .ThenInclude(fi => fi.FoodItemSpecialGroups)  // ✅ Include Many-to-Many Mapping Table
+                        .ThenInclude(fsg => fsg.HomepageSpecialGroup) // ✅ Include the Special Group Details
                 .ToListAsync();
 
             // Manual mapping from MenuCategoryDetails to FoodCategoryResponseDTO
@@ -88,11 +93,27 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                     DiscountPercentage = item.DiscountPercentage,
                     ImagePath = item.ImagePath,
                     ImageUrl = item.ImageUrl,
-                    OfferPeriod = item.OfferPeriod,
-                    OfferDetails = item.OfferDetails,
-                    IsSpecialOffer = item.IsSpecialOffer,
                     OrderLink = item.OrderLink,
-                    CategoryId = item.CategoryId
+                    CategoryId = item.CategoryId,
+
+                    // ✅ Fetch and Map Special Groups
+                    SpecialGroups = item.FoodItemSpecialGroups?
+                    .Where(fsg => fsg.HomepageSpecialGroup != null) // Ensure valid groups
+                    .Select(fsg => new HomepageSpecialGroupResponseDTO
+                    {
+                        Id = fsg.HomepageSpecialGroup.GroupId,
+                        GroupName = fsg.HomepageSpecialGroup.GroupName,
+                        GroupDescription = fsg.HomepageSpecialGroup.GroupDescription,
+                        GroupType = fsg.HomepageSpecialGroup.GroupType,
+                        StartDate = fsg.HomepageSpecialGroup.StartDate,
+                        EndDate = fsg.HomepageSpecialGroup.EndDate,
+                        Status = fsg.HomepageSpecialGroup.Status,
+                        IsDiscounted = fsg.HomepageSpecialGroup.IsDiscounted,
+                        DiscountedRate = fsg.HomepageSpecialGroup.DiscountedRate,
+                        CreatedBy = fsg.HomepageSpecialGroup.CreatedBy,
+                        UpdatedBy = fsg.HomepageSpecialGroup.UpdatedBy,
+                        ImageUrl = fsg.HomepageSpecialGroup.ImageUrl
+                    }).ToList()
                 }).ToList()
             }).ToList();
 
@@ -108,6 +129,13 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
             return await _context.MenuItems
                 .Where(item => item.Name.ToLower() == name.ToLower())
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<HomepageSpecialGroup>> GetSpecialGroupsByIdsAsync(List<Guid> specialGroupIds)
+        {
+            return await _context.HomepageSpecialGroups
+                                 .Where(hsg => specialGroupIds.Contains(hsg.GroupId))
+                                 .ToListAsync();
         }
         public async Task<MenuItemDetails> GetFoodItemByIdAsync(Guid foodItemId)
         {
@@ -127,14 +155,17 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                 DiscountPercentage = item.DiscountPercentage, // Assuming this field exists in MenuItemDetails
                 ImagePath = item.ImagePath,
                 ImageUrl = item.ImageUrl,
-                OfferPeriod = item.OfferPeriod, // Assuming this field exists in MenuItemDetails
-                OfferDetails = item.OfferDetails, // Assuming this field exists in MenuItemDetails
-                IsSpecialOffer = item.IsSpecialOffer, // Assuming this field exists in MenuItemDetails
                 OrderLink = item.OrderLink, // Assuming this field exists in MenuItemDetails
                 CategoryId = item.CategoryId
             }).ToList();
 
             return foodItemDTOs;
+        }
+
+        public async Task<HomepageSpecialGroup?> GetSpecialGroupByIdAsync(Guid specialGroupId)
+        {
+            return await _context.HomepageSpecialGroups
+                                 .FirstOrDefaultAsync(sg => sg.GroupId == specialGroupId);
         }
 
         public async Task<List<FoodCategoryResponseDTO>> GetAllFoodCategoriesOnlyAsync()
