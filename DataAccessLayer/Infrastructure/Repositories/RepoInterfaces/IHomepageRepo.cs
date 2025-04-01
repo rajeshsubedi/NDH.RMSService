@@ -10,9 +10,9 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoInterfaces
 {
     public interface IHomepageRepo
     {
-        Task AddHomepageSpecialGroupAsync(HomepageSpecialGroups homepageSpecialGroup);
-        Task<List<HomepageSpecialGroups>> GetAllHomepageSpecialGroupsAsync();
-        Task<IEnumerable<MenuItemDetails>> GetSpecialOffersAsync();
+        Task AddHomepageSpecialGroupAsync(HomepageSpecialGroup homepageSpecialGroup);
+        Task<HomepageSpecialGroup> GetHomepageSpecialGroupByNameAsync(string groupName);
+        Task<List<HomepageSpecialGroup>> GetAllHomepageSpecialGroupsAsync();
         Task<IEnumerable<SpecialEventDetails>> GetSpecialEventsAsync();
         Task AddSpecialEventAsync(SpecialEventDetails specialEventDetails);
         Task<List<MenuItemDetails>> SearchFoodItemsAsync(string name, string description);

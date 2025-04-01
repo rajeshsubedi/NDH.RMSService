@@ -1,4 +1,5 @@
-﻿using DomainLayer.Models.DataModels.MenuManagementModels;
+﻿using DomainLayer.Models.DataModels.HomepageManagementModels;
+using DomainLayer.Models.DataModels.MenuManagementModels;
 using DomainLayer.Wrappers.DTO.MenuManagementDTO;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,9 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoInterfaces
         Task<MenuCategoryDetails> GetAllFoodItemsByCategoryId(Guid categoryId);
         Task<List<MenuCategoryDetails>> GetFoodCategoriesByIdOrNameAsync(Guid? id, string name);
         Task<List<FoodCategoryResponseDTO>> GetAllCategoriesAndFoodItemsAsync();
+        Task<List<HomepageSpecialGroup>> GetSpecialGroupsByIdsAsync(List<Guid> specialGroupIds);
         Task AddFoodItemAsync(MenuItemDetails foodItem);
+        Task<HomepageSpecialGroup?> GetSpecialGroupByIdAsync(Guid specialGroupId);
         Task<MenuItemDetails?> GetFoodItemByNameAsync(string name);
         Task<MenuItemDetails> GetFoodItemByIdAsync(Guid foodItemId);
         Task<List<FoodItemResponseDTO>> GetAllFoodItemsAsync();

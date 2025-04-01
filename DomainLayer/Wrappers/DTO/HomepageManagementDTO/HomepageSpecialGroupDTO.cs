@@ -14,8 +14,27 @@ namespace DomainLayer.Wrappers.DTO.HomepageManagementDTO
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public string Status { get; set; }
+        public bool IsDiscounted { get; set; }
+        public string DiscountedRate { get; set; }
         public int? CreatedBy { get; set; }
         public int? UpdatedBy { get; set; }
         public string ImageUrl { get; set; }
+    }
+
+    public class HomepageSpecialGroupResponseDTO
+    {
+        public Guid Id { get; set; }
+        public string GroupName { get; set; }
+        public string GroupDescription { get; set; }
+        public string GroupType { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+        public string Status { get; set; }
+        public bool IsDiscounted { get; set; }
+        public string DiscountedRate { get; set; }
+        public int? CreatedBy { get; set; }
+        public int? UpdatedBy { get; set; }
+        public string? ImageUrl { get; set; }
+
     }
 }

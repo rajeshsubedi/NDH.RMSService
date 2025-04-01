@@ -13,10 +13,9 @@ namespace ServicesLayer.ServiceInterfaces
     // IHomePageService.cs
     public interface IHomepageService
     {
-        Task<HomepageSpecialGroups> AddHomepageSpecialGroupAsync(HomepageSpecialGroupDTO homepageSpecialGroupDto);
+        Task<Guid> AddHomepageSpecialGroupAsync(HomepageSpecialGroupDTO homepageSpecialGroupDto);
 
-        Task<List<HomepageSpecialGroups>> GetAllHomepageSpecialGroupsAsync();
-        Task<IEnumerable<MenuItemDetails>> GetSpecialOffersAsync();
+        Task<List<HomepageSpecialGroupResponseDTO>> GetAllHomepageSpecialGroupsAsync();
         Task<IEnumerable<SpecialEventDetails>> GetSpecialEventsAsync();
         Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto);
         Task<List<MenuItemDetails>> SearchFoodItemsAsync(string name, string description);

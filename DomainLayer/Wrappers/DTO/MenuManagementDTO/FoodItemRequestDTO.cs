@@ -1,4 +1,6 @@
-﻿using DomainLayer.Models.DataModels.MenuManagementModels;
+﻿using DomainLayer.Models.DataModels.HomepageManagementModels;
+using DomainLayer.Models.DataModels.MenuManagementModels;
+using DomainLayer.Wrappers.DTO.HomepageManagementDTO;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -17,20 +19,13 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
 
         public decimal? Price { get; set; }
 
-        //public decimal? DiscountPercentage { get; set; }
-
         public string? ImageUrl { get; set; }
 
         public string? ImagePath { get; set; }  
 
-        //public string? OfferPeriod { get; set; }
-
-        //public string? OfferDetails { get; set; }
-
-        public bool? IsSpecialOffer { get; set; }
         public Guid CategoryId { get; set; }
 
-    //public string? OrderLink { get; set; }
+        public List<Guid>? SpecialGroupIds { get; set; }
 
     }
 
@@ -42,13 +37,12 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
         public decimal? Price { get; set; }
         public decimal? DiscountPercentage { get; set; }
         public string? ImagePath { get; set; } 
-
         public string? ImageUrl { get; set; }
-        public string? OfferPeriod { get; set; }
-        public string? OfferDetails { get; set; }
-        public bool? IsSpecialOffer { get; set; } 
         public string? OrderLink { get; set; }
         public Guid CategoryId { get; set; }
+
+        // ✅ Include Special Groups
+        public List<HomepageSpecialGroupResponseDTO>? SpecialGroups { get; set; }
 
     }
 

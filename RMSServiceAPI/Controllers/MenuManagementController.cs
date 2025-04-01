@@ -191,7 +191,7 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
-        
+
         [HttpPost("add-food-item")]
         public async Task<BaseResponse<Guid>> AddFoodItem([FromForm] FoodItemRequestDTO foodItemDto)
         {
@@ -205,11 +205,10 @@ namespace RMSServiceAPI.Controllers
                 {
                     throw new CustomInvalidOperationException("Price must be greater than zero.");
                 }
-              
-                // Add the food item
+
+                // ✅ Call Service to Add Food Item
                 var response = await _menuManagementService.AddFoodItemAsync(foodItemDto, foodItemDto.CategoryId);
 
-                // Return the success response
                 return new BaseResponse<Guid>(
                     response._data,
                     HttpStatusCode.Created,
@@ -219,13 +218,13 @@ namespace RMSServiceAPI.Controllers
             }
             catch (DuplicateRecordException ex)
             {
-                Log.Error("Item name already exists");
+                Log.Error("Item name already exists.");
                 throw;
             }
             catch (CustomInvalidOperationException ex)
             {
-                Log.Error("Add Item failed");
-                throw; // This will be caught by the middleware
+                Log.Error("Add Item failed.");
+                throw;
             }
             catch (Exception ex)
             {
