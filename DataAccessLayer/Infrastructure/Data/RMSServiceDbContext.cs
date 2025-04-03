@@ -173,16 +173,6 @@ namespace DataAccessLayer.Infrastructure.Data
                 entity.HasKey(e => e.GroupId);
                 entity.Property(e => e.GroupName).IsRequired().HasColumnType("nvarchar(100)");
                 entity.Property(e => e.GroupDescription).IsRequired().HasColumnType("nvarchar(100)");
-                entity.Property(e => e.GroupType).IsRequired().HasColumnType("nvarchar(100)");
-                entity.Property(e => e.StartDate).HasMaxLength(100).HasColumnType("datetime2");
-                entity.Property(e => e.EndDate).HasMaxLength(50).HasColumnType("datetime2");
-                entity.Property(e => e.Status).HasMaxLength(50).HasColumnType("nvarchar(100)");
-                entity.Property(e => e.CreatedAt).HasMaxLength(20).HasColumnType("datetime2");
-                entity.Property(e => e.UpdatedAt).HasMaxLength(50).HasColumnType("datetime2");
-                entity.Property(e => e.CreatedBy).HasColumnType("int");
-                entity.Property(e => e.UpdatedBy).HasColumnType("int");
-                entity.Property(e => e.ImageUrl).HasColumnType("nvarchar(100)");
-               
             });
 
             // ✅ Configure Many-to-Many Relationship

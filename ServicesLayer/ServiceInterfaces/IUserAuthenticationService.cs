@@ -22,5 +22,7 @@ namespace ServicesLayer.ServiceInterface
         Task<UserRegistrationDetails> GetUserByEmailOnlyAsync(string email);
         Task<bool> ResetPasswordAsync(string email, string newPassword);
         string GeneratJWTToken(UserRegistrationDetails user);
+        Task<List<UserDetailsResponseDTO>> GetAllUsersAsync();
+        Task<bool> DeleteUserAsync(Guid userId);
     }
 }

@@ -16,6 +16,10 @@ using DomainLayer.Models.DomainModels;
 using ServicesLayer.ServiceInterfaces;
 using SendGrid;
 using RMSServiceAPI.CustomMiddlewareExceptions;
+using Amazon.SimpleEmail;
+using Amazon;
+using Amazon.Runtime;
+using YourNamespace;
 
 
 namespace RMSServiceAPI.Extensions
@@ -155,11 +159,29 @@ namespace RMSServiceAPI.Extensions
 
         public static void SMTPConfigureService(this IServiceCollection services, IConfiguration configuration)
         {
-            var smtpSettings = configuration.GetSection("Smtp").Get<SmtpSettings>();
-            services.AddSingleton<ISendGridClient>(new SendGridClient(smtpSettings.Password));
-            services.AddHttpClient<IEmailService, EmailService>(client =>
-            {
-            });
+            //// Ensure smtpSettings is retrieved correctly before using it
+            //var smtpSettings = configuration.GetSection("Smtp").Get<SmtpSettings>();
+            //if (smtpSettings == null)
+            //{
+            //    throw new ArgumentNullException(nameof(smtpSettings), "SMTP settings cannot be null.");
+            //}
+
+            //var credentials = new BasicAWSCredentials(smtpSettings.AwsAccessKey, smtpSettings.AwsSecretKey);
+            //var sesConfig = new AmazonSimpleEmailServiceConfig
+            //{
+            //    RegionEndpoint = RegionEndpoint.GetBySystemName(smtpSettings.AwsRegion),
+            //    UseHttp = true // Ensures connections stay open
+            //};
+
+            //services.AddSingleton<IAmazonSimpleEmailService>(sp =>
+            //    new AmazonSimpleEmailServiceClient(credentials, sesConfig));
+
+            //services.Configure<SmtpSettings>(configuration.GetSection("Smtp"));
+            //services.AddSingleton<IEmailService, EmailService>(); // ✅ Register EmailService as Singleton
+            //services.AddSingleton<EmailService>();
         }
+
+
+
     }
 }

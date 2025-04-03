@@ -42,17 +42,6 @@ namespace ServicesLayer.ServiceImplementations
                 GroupId = Guid.NewGuid(),
                 GroupName = homepageSpecialGroupDto.GroupName,
                 GroupDescription = homepageSpecialGroupDto.GroupDescription,
-                GroupType = homepageSpecialGroupDto.GroupType,
-                StartDate = homepageSpecialGroupDto.StartDate,
-                EndDate = homepageSpecialGroupDto.EndDate,
-                Status = homepageSpecialGroupDto.Status,
-                CreatedAt = DateTime.UtcNow, // Use UTC time
-                UpdatedAt = DateTime.UtcNow, // Use UTC time
-                IsDiscounted = homepageSpecialGroupDto.IsDiscounted,
-                DiscountedRate = homepageSpecialGroupDto.DiscountedRate,
-                CreatedBy = homepageSpecialGroupDto.CreatedBy,
-                UpdatedBy = homepageSpecialGroupDto.UpdatedBy,
-                ImageUrl = homepageSpecialGroupDto.ImageUrl
             };
 
             // Add the new group to the database
@@ -73,15 +62,6 @@ namespace ServicesLayer.ServiceImplementations
                 Id = group.GroupId,
                 GroupName = group.GroupName,
                 GroupDescription = group.GroupDescription,
-                GroupType = group.GroupType,
-                StartDate = group.StartDate,
-                EndDate = group.EndDate,
-                Status = group.Status,
-                IsDiscounted = group.IsDiscounted,
-                DiscountedRate = group.DiscountedRate,
-                CreatedBy = group.CreatedBy,
-                UpdatedBy = group.UpdatedBy,
-                ImageUrl = group.ImageUrl
             }).ToList();
 
             return specialGroupDtos;

@@ -444,6 +444,87 @@ namespace RMSServiceAPI.Controllers
                 throw new CustomInvalidOperationException("An error occurred while reseting the email.");
             }
         }
+
+        [HttpGet("users")]
+        public async Task<BaseResponse<List<UserDetailsResponseDTO>>> GetAllUsers()
+        {
+            try
+            {
+                Log.Information("Fetching all users");
+                var users = await _userAuthService.GetAllUsersAsync();
+
+                if (users == null || !users.Any())
+                {
+                    return new BaseResponse<List<UserDetailsResponseDTO>>
+                    {
+                        _success = false,
+                        _message = "No users found",
+                        _statusCode = HttpStatusCode.NotFound,
+                        _data = null
+                    };
+                }
+
+                return new BaseResponse<List<UserDetailsResponseDTO>>
+                {
+                    _success = true,
+                    _message = "Users retrieved successfully",
+                    _statusCode = HttpStatusCode.OK,
+                    _data = users
+                };
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unexpected error while fetching user details");
+                return new BaseResponse<List<UserDetailsResponseDTO>>
+                {
+                    _success = false,
+                    _message = "An error occurred while fetching user details",
+                    _statusCode = HttpStatusCode.InternalServerError,
+                    _data = null
+                };
+            }
+        }
+
+
+        [HttpDelete("users/{userId}")]
+        public async Task<BaseResponse<Guid>> DeleteUser(Guid userId)
+        {
+            try
+            {
+                Log.Information("Deleting user with ID: {UserId}", userId);
+                var result = await _userAuthService.DeleteUserAsync(userId);
+
+                if (!result)
+                {
+                    return new BaseResponse<Guid>
+                    {
+                        _success = false,
+                        _message = "User not found or could not be deleted",
+                        _statusCode = HttpStatusCode.NotFound,
+                        _data = Guid.NewGuid()
+                    };
+                }
+
+                return new BaseResponse<Guid>
+                {
+                    _success = true,
+                    _message = "User deleted successfully",
+                    _statusCode = HttpStatusCode.OK,
+                    _data = userId
+                };
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unexpected error while deleting user");
+                return new BaseResponse<Guid>
+                {
+                    _success = false,
+                    _message = "An error occurred while deleting the user",
+                    _statusCode = HttpStatusCode.InternalServerError,
+                    _data = Guid.NewGuid()
+                };
+            }
+        }
     }
 
 }

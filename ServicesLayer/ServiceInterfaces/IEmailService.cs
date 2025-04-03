@@ -9,6 +9,6 @@ namespace ServicesLayer.ServiceInterfaces
     public interface IEmailService
     {
         Task SendEmailAsync(string toEmail, string subject, string htmlContent);
-        Task<bool> VerifyEmailAsync(string email);
+        //Task<bool> VerifyEmailAsync(string email);
     }
 }

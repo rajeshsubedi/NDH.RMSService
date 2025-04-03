@@ -167,7 +167,7 @@ namespace RMSServiceAPI.Controllers
         }
 
         [HttpGet("all-categories-and-fooditems")]
-        public async Task<BaseResponse<List<FoodCategoryResponseDTO>>> GetAllCategoriesAndFoodItemsAsync()
+        public async Task<BaseResponse<List<FoodCategoryandItemOnlyResponseDTO>>> GetAllCategoriesAndFoodItemsAsync()
         {
             try
             {
@@ -178,7 +178,7 @@ namespace RMSServiceAPI.Controllers
                     throw new NotFoundException("No categories found.");
                 }
 
-                return new BaseResponse<List<FoodCategoryResponseDTO>>
+                return new BaseResponse<List<FoodCategoryandItemOnlyResponseDTO>>
                     (categoriesWithItems,
                     HttpStatusCode.OK, 
                     true, 
@@ -187,7 +187,7 @@ namespace RMSServiceAPI.Controllers
             catch (Exception ex)
             {
                 Log.Error("An error occurred while retrieving categories with food items.", ex);
-                throw new CustomInvalidOperationException("An error occurred while retrieving categories with food items.");
+                throw new CustomInvalidOperationException($"An error occurred while retrieving categories with food items. {ex.Message}");
             }
         }
 

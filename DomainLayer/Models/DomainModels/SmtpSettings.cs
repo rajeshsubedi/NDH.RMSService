@@ -8,13 +8,13 @@ namespace DomainLayer.Models.DomainModels
 {
     public class SmtpSettings
     {
-        public string Host { get; set; }
-        public int Port { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string FromAddress { get; set; }
-        public string CompanyName { get; set; } // Add this line
-        public string EmailVerificationApiUrl { get; set; }
-        public string EmailVerificationApiKey {  get; set; }
+        public string? AwsAccessKey { get; set; } // Nullable property
+        public string? AwsSecretKey { get; set; } // Nullable property
+        public string? AwsRegion { get; set; } // Nullable property
+        public string? FromAddress { get; set; } // Nullable property
+        public string? CompanyName { get; set; } // Nullable property
+        public string? EmailVerificationApiUrl { get; set; } // Nullable property
+        public string? EmailVerificationApiKey { get; set; } // Nullable property
     }
+
 }

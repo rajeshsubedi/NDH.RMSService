@@ -325,5 +325,26 @@ namespace ServicesLayer.ServiceImplementations
         {
             return random.Next(100000, 999999); // Generates a 6-digit OTP
         }
+
+
+        //UserDetails
+
+        public async Task<List<UserDetailsResponseDTO>> GetAllUsersAsync()
+        {
+            var users = await _userRepository.GetAllUsersAsync();
+
+            return users.Select(user => new UserDetailsResponseDTO
+            {
+                userId = user.UserId,
+                Username = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber
+            }).ToList();
+        }
+
+        public async Task<bool> DeleteUserAsync(Guid userId)
+        {
+            return await _userRepository.DeleteUserAsync(userId);
+        }
     }
 }

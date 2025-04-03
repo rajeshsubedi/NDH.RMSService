@@ -1,121 +1,65 @@
-﻿using SendGrid;
-using SendGrid.Helpers.Mail;
+﻿using PostmarkDotNet;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using DomainLayer.Exceptions;
-using DomainLayer.Models.DomainModels;
 using ServicesLayer.ServiceInterfaces;
-using System.Net.Mail;
-using Newtonsoft.Json.Linq;
-using System.Net.Http;
-using System.Runtime;
-using Serilog;
 
-namespace ServicesLayer.ServiceImplementations
+namespace YourNamespace
 {
-    public class EmailService : IEmailService
+    public class EmailService :IEmailService
     {
-        private readonly SmtpSettings _smtpSettings;
-        private readonly ISendGridClient _sendGridClient;
-        private readonly HttpClient _httpClient;
+        private readonly PostmarkClient _client;
+        private readonly string _fromAddress;
 
-        public EmailService(IConfiguration configuration, ISendGridClient sendGridClient, HttpClient httpClient)
+        public EmailService(IConfiguration configuration)
         {
-            _smtpSettings = new SmtpSettings();
-            configuration.GetSection("Smtp").Bind(_smtpSettings);
-            _sendGridClient = sendGridClient;
-            _httpClient = httpClient;
+            // Fetch API key from app settings
+            var apiKey = configuration["Postmark:ApiKey"];
+            _fromAddress = configuration["Postmark:FromAddress"];
+
+            // Initialize Postmark client
+            _client = new PostmarkClient(apiKey);
         }
 
-        public bool IsValidEmail(string email)
+        public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
-            try
-            {
-                var mailAddress = new MailAddress(email);
-                return mailAddress.Address == email;
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
-        }
+            if (string.IsNullOrWhiteSpace(toEmail))
+                throw new ArgumentException("To email address is required.");
 
-        public async Task SendEmailAsync(string toEmail, string subject, string htmlContent)
-        {
-            if (!IsValidEmail(toEmail))
-            {
-                throw new ArgumentException("Invalid Email ID");
-            }
+            if (string.IsNullOrWhiteSpace(subject))
+                throw new ArgumentException("Subject is required.");
 
-            // Verify email existence
-            //if (!await VerifyEmailAsync(toEmail))
-            //{
-            //    Log.Error("Email does not exist: {Email}", toEmail);
-            //    throw new InvalidOperationException("Email does not exist.");
-            //}
-
-            var fromEmail = new EmailAddress(_smtpSettings.FromAddress, _smtpSettings.CompanyName);
-            var toEmailAddress = new EmailAddress(toEmail);
-            var msg = MailHelper.CreateSingleEmail(fromEmail, toEmailAddress, subject, "", htmlContent);
+            if (string.IsNullOrWhiteSpace(body))
+                throw new ArgumentException("Body content is required.");
 
             try
             {
-                var response = await _sendGridClient.SendEmailAsync(msg);
-
-                if (response.StatusCode != System.Net.HttpStatusCode.Accepted)
+                var message = new PostmarkMessage
                 {
-                    string responseBody = await response.Body.ReadAsStringAsync();
-                    Log.Error("Failed to send email. Status code: {StatusCode}, Response: {ResponseBody}", response.StatusCode, responseBody);
-                    throw new InvalidOperationException($"Failed to send email. Status code: {response.StatusCode}");
-                }
+                    To = toEmail,
+                    From = _fromAddress, // The 'From' address must be verified in Postmark
+                    Subject = subject,
+                    TextBody = body,
+                    HtmlBody = $"<p>{body}</p>"
+                };
 
-                Log.Information("Email sent successfully to {Email}", toEmail);
-            }
-            catch (Exception ex)
-            {
-                // Handle general exceptions
-                Log.Error(ex, "Failed to send email.");
-                throw new Exception("Failed to send email.", ex);
-            }
-        }
+                var response = await _client.SendMessageAsync(message);
 
-        public async Task<bool> VerifyEmailAsync(string email)
-        {
-            var requestUri = $"{_smtpSettings.EmailVerificationApiUrl}?api_key={_smtpSettings.EmailVerificationApiKey}&email={email}";
-
-            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-            try
-            {
-                var response = await _httpClient.SendAsync(request);
-                if (response.IsSuccessStatusCode)
+                if (response.Status == PostmarkStatus.Success)
                 {
-                    var responseBody = await response.Content.ReadAsStringAsync();
-                    var jsonResponse = JObject.Parse(responseBody);
-                    var status = jsonResponse["status"]?.ToString();
-                    if (status == "valid")
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        Log.Error("Email verification status: {Status}", status);
-                        return false;
-                    }
+                    Console.WriteLine($"Email sent successfully to {toEmail}. MessageId: {response.MessageID}");
                 }
                 else
                 {
-                    Log.Error("Failed to verify email. Status code: {StatusCode}", response.StatusCode);
-                    return false;
+                    Console.WriteLine($"Error sending email to {toEmail}: {response.Message}");
+                    throw new Exception($"Postmark failed to send email. Status: {response.Status}");
                 }
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "An error occurred while verifying the email.");
-                return false;
+                Console.WriteLine($"Exception occurred: {ex.Message}");
+                throw;
             }
         }
-
-
     }
 }

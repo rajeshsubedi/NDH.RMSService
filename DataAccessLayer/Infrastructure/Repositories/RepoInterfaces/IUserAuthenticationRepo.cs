@@ -21,5 +21,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoInterfaces
         Task<UserRegistrationDetails> GetUserByEmailOnlyAsync(string userEmail);
         Task<UserRegistrationDetails> GetDetailsByUserIdEmailAndFlagAsync(string email);
         Task UpdateOrRegisterUserAsync(UserRegistrationDetails userRegistrationDetails);
+        Task<List<UserRegistrationDetails>> GetAllUsersAsync();
+        Task<bool> DeleteUserAsync(Guid userId);
     }
 }

@@ -15,4 +15,13 @@ namespace DomainLayer.Wrappers.DTO.AuthenticationDTO
         public string PhoneNumber { get; set; }
 
     }
+
+    public class UserDetailsResponseDTO
+    {
+        public Guid? userId {  get; set; }
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+
+    }
 }

@@ -2,6 +2,7 @@
 using DomainLayer.Exceptions;
 using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
+using DomainLayer.Wrappers.DTO.HomepageManagementDTO;
 using DomainLayer.Wrappers.DTO.MenuManagementDTO;
 using DomainLayer.Wrappers.GlobalResponse;
 using Serilog;
@@ -88,7 +89,16 @@ namespace ServicesLayer.ServiceImplementations
                         ImageUrl = item.ImageUrl,
                         OrderLink = item.OrderLink,
                         CategoryId = item.CategoryId,
-             
+
+                        // ✅ Fetch and Map Special Groups
+                        SpecialGroups = item.FoodItemSpecialGroups?
+                    .Where(fsg => fsg.HomepageSpecialGroup != null) // Ensure valid groups
+                    .Select(fsg => new HomepageSpecialGroupResponseDTO
+                    {
+                        Id = fsg.HomepageSpecialGroup.GroupId,
+                        GroupName = fsg.HomepageSpecialGroup.GroupName,
+                        GroupDescription = fsg.HomepageSpecialGroup.GroupDescription,
+                    }).ToList()
                     }).ToList()
                     : new List<FoodItemResponseDTO>() // Empty list if no items
             };
@@ -120,7 +130,7 @@ namespace ServicesLayer.ServiceImplementations
 
             return categoryDtos;
         }
-        public async Task<List<FoodCategoryResponseDTO>> GetAllCategoriesAndFoodItemsAsync()
+        public async Task<List<FoodCategoryandItemOnlyResponseDTO>> GetAllCategoriesAndFoodItemsAsync()
         {
             var categories = await _menuManagementRepo.GetAllCategoriesAndFoodItemsAsync();
 
@@ -145,6 +155,28 @@ namespace ServicesLayer.ServiceImplementations
                     throw new DuplicateRecordException("Food Item name already exists.");
                 }
 
+
+                // ✅ Check if SpecialGroupIds are provided
+                if (foodItemDto.SpecialGroupIds != null && foodItemDto.SpecialGroupIds.Any())
+                {
+                    // ✅ Fetch all matching special groups in a single query
+                    var existingSpecialGroups = await _menuManagementRepo
+                        .GetSpecialGroupsByIdsAsync(foodItemDto.SpecialGroupIds);
+
+                    // ✅ Find missing IDs that don’t exist in the database
+                    var missingIds = foodItemDto.SpecialGroupIds
+                        .Except(existingSpecialGroups.Select(sg => sg.GroupId))
+                        .ToList();
+
+                    // ✅ If any ID is missing, throw an error
+                    if (missingIds.Any())
+                    {
+                        throw new NotFoundException($"The following SpecialGroupIds do not exist: {string.Join(", ", missingIds)}");
+                    }
+                }
+
+
+
                 // ✅ Create the new Food Item
                 var foodItemDetail = new MenuItemDetails
                 {
@@ -157,22 +189,44 @@ namespace ServicesLayer.ServiceImplementations
                     FoodItemSpecialGroups = new List<FoodItemSpecialGroupMap>()
                 };
 
+                //// ✅ Assign Special Groups if provided
+                //if (foodItemDto.SpecialGroupIds != null && foodItemDto.SpecialGroupIds.Any())
+                //{
+                //    foreach (var specialGroupId in foodItemDto.SpecialGroupIds)
+                //    {
+                //        var specialGroup = await _menuManagementRepo.GetSpecialGroupByIdAsync(specialGroupId);
+                //        if (specialGroup != null)
+                //        {
+                //            foodItemDetail.FoodItemSpecialGroups.Add(new FoodItemSpecialGroupMap
+                //            {
+                //                FoodItemId = foodItemDetail.ItemId,
+                //                SpecialGroupId = specialGroup.GroupId
+                //            });
+                //        }
+                //    }
+                //}
+
                 // ✅ Assign Special Groups if provided
                 if (foodItemDto.SpecialGroupIds != null && foodItemDto.SpecialGroupIds.Any())
                 {
-                    foreach (var specialGroupId in foodItemDto.SpecialGroupIds)
+                    // ✅ Fetch all matching special groups in a single query
+                    var existingSpecialGroups = await _menuManagementRepo
+                        .GetSpecialGroupsByIdsAsync(foodItemDto.SpecialGroupIds);
+
+                    // ✅ Ensure the FoodItemSpecialGroups list is initialized
+                    foodItemDetail.FoodItemSpecialGroups ??= new List<FoodItemSpecialGroupMap>();
+
+                    // ✅ Add only valid special groups
+                    foreach (var specialGroup in existingSpecialGroups)
                     {
-                        var specialGroup = await _menuManagementRepo.GetSpecialGroupByIdAsync(specialGroupId);
-                        if (specialGroup != null)
+                        foodItemDetail.FoodItemSpecialGroups.Add(new FoodItemSpecialGroupMap
                         {
-                            foodItemDetail.FoodItemSpecialGroups.Add(new FoodItemSpecialGroupMap
-                            {
-                                FoodItemId = foodItemDetail.ItemId,
-                                SpecialGroupId = specialGroup.GroupId
-                            });
-                        }
+                            FoodItemId = foodItemDetail.ItemId,
+                            SpecialGroupId = specialGroup.GroupId
+                        });
                     }
                 }
+
 
                 // ✅ Save the food item to the DB
                 await _menuManagementRepo.AddFoodItemAsync(foodItemDetail);

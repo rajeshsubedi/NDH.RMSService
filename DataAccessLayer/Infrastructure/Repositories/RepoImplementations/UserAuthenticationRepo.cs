@@ -151,5 +151,42 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
             }
         }
 
+
+        //Userdatails
+
+        public async Task<List<UserRegistrationDetails>> GetAllUsersAsync()
+        {
+            try
+            {
+                return await _rmsServicedb.UserRegistration.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while fetching all users.");
+                return new List<UserRegistrationDetails>();
+            }
+        }
+
+        public async Task<bool> DeleteUserAsync(Guid userId)
+        {
+            try
+            {
+                var user = await _rmsServicedb.UserRegistration.FirstOrDefaultAsync(u => u.UserId == userId);
+                if (user == null)
+                {
+                    return false;
+                }
+
+                _rmsServicedb.UserRegistration.Remove(user);
+                await _rmsServicedb.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "An error occurred while deleting the user.");
+                return false;
+            }
+        }
+
     }
 }

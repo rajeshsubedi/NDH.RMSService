@@ -41,8 +41,11 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
 
         public async Task<MenuCategoryDetails?> GetAllFoodItemsByCategoryId(Guid categoryId)
         {
+
             return await _context.MenuCategories
                 .Include(c => c.FoodItems)
+                    .ThenInclude(fi => fi.FoodItemSpecialGroups)  // Include Many-to-Many Mapping Table
+                    .ThenInclude(fsg => fsg.HomepageSpecialGroup) // Include the Special Group Details
                 .FirstOrDefaultAsync(c => c.CategoryId == categoryId);
         }
 
@@ -64,18 +67,16 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
 
             return await query.ToListAsync();
         }
-        public async Task<List<FoodCategoryResponseDTO>> GetAllCategoriesAndFoodItemsAsync()
+        public async Task<List<FoodCategoryandItemOnlyResponseDTO>> GetAllCategoriesAndFoodItemsAsync()
         {
             // Fetch all categories and include the related food items for each category
             var categories = await _context.MenuCategories
                 .AsNoTracking()
                 .Include(c => c.FoodItems)
-                    .ThenInclude(fi => fi.FoodItemSpecialGroups)  // ✅ Include Many-to-Many Mapping Table
-                        .ThenInclude(fsg => fsg.HomepageSpecialGroup) // ✅ Include the Special Group Details
                 .ToListAsync();
 
             // Manual mapping from MenuCategoryDetails to FoodCategoryResponseDTO
-            var categoryDTOs = categories.Select(category => new FoodCategoryResponseDTO
+            var categoryDTOs = categories.Select(category => new FoodCategoryandItemOnlyResponseDTO
             {
                 CategoryId = category.CategoryId,
                 Name = category.Name,
@@ -84,7 +85,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                 ImageUrl = category.ImageUrl,
 
                 // Map the associated food items
-                FoodItems = category.FoodItems.Select(item => new FoodItemResponseDTO
+                FoodItems = category.FoodItems.Select(item => new FoodItemOnlyResponseDTO
                 {
                     ItemId = item.ItemId,
                     Name = item.Name,
@@ -95,25 +96,6 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                     ImageUrl = item.ImageUrl,
                     OrderLink = item.OrderLink,
                     CategoryId = item.CategoryId,
-
-                    // ✅ Fetch and Map Special Groups
-                    SpecialGroups = item.FoodItemSpecialGroups?
-                    .Where(fsg => fsg.HomepageSpecialGroup != null) // Ensure valid groups
-                    .Select(fsg => new HomepageSpecialGroupResponseDTO
-                    {
-                        Id = fsg.HomepageSpecialGroup.GroupId,
-                        GroupName = fsg.HomepageSpecialGroup.GroupName,
-                        GroupDescription = fsg.HomepageSpecialGroup.GroupDescription,
-                        GroupType = fsg.HomepageSpecialGroup.GroupType,
-                        StartDate = fsg.HomepageSpecialGroup.StartDate,
-                        EndDate = fsg.HomepageSpecialGroup.EndDate,
-                        Status = fsg.HomepageSpecialGroup.Status,
-                        IsDiscounted = fsg.HomepageSpecialGroup.IsDiscounted,
-                        DiscountedRate = fsg.HomepageSpecialGroup.DiscountedRate,
-                        CreatedBy = fsg.HomepageSpecialGroup.CreatedBy,
-                        UpdatedBy = fsg.HomepageSpecialGroup.UpdatedBy,
-                        ImageUrl = fsg.HomepageSpecialGroup.ImageUrl
-                    }).ToList()
                 }).ToList()
             }).ToList();
 
@@ -134,8 +116,8 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         public async Task<List<HomepageSpecialGroup>> GetSpecialGroupsByIdsAsync(List<Guid> specialGroupIds)
         {
             return await _context.HomepageSpecialGroups
-                                 .Where(hsg => specialGroupIds.Contains(hsg.GroupId))
-                                 .ToListAsync();
+                    .Where(sg => specialGroupIds.Contains(sg.GroupId))
+                    .ToListAsync();
         }
         public async Task<MenuItemDetails> GetFoodItemByIdAsync(Guid foodItemId)
         {
@@ -143,9 +125,13 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         }
         public async Task<List<FoodItemResponseDTO>> GetAllFoodItemsAsync()
         {
-            var foodItems = await _context.MenuItems.ToListAsync();
-
+            var foodItems = await _context.MenuItems
+                                     .AsNoTracking()
+                                          .Include(fi => fi.FoodItemSpecialGroups)  // Include the Many-to-Many Mapping Table
+                                    .ThenInclude(fsg => fsg.HomepageSpecialGroup)  // Include the Special Group Details
+                                .ToListAsync();
             // Manual mapping from MenuItemDetails to FoodItemResponseDTO
+
             var foodItemDTOs = foodItems.Select(item => new FoodItemResponseDTO
             {
                 ItemId = item.ItemId,
@@ -156,7 +142,17 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                 ImagePath = item.ImagePath,
                 ImageUrl = item.ImageUrl,
                 OrderLink = item.OrderLink, // Assuming this field exists in MenuItemDetails
-                CategoryId = item.CategoryId
+                CategoryId = item.CategoryId,
+
+                // ✅ Fetch and Map Special Groups
+                SpecialGroups = item.FoodItemSpecialGroups?
+                    .Where(fsg => fsg.HomepageSpecialGroup != null) // Ensure valid groups
+                    .Select(fsg => new HomepageSpecialGroupResponseDTO
+                    {
+                        Id = fsg.HomepageSpecialGroup.GroupId,
+                        GroupName = fsg.HomepageSpecialGroup.GroupName,
+                        GroupDescription = fsg.HomepageSpecialGroup.GroupDescription,
+                    }).ToList()
             }).ToList();
 
             return foodItemDTOs;

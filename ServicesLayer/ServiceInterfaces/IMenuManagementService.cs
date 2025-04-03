@@ -15,7 +15,7 @@ namespace ServicesLayer.ServiceInterfaces
         Task<FoodCategoryResponseDTO> GetAllFoodItemsWithCategoryId(Guid categoryId);
         Task<List<FoodCategoryResponseDTO>> GetAllFoodCategoriesOnlyAsync();
         Task<List<FoodCategoryResponseDTO>> GetFoodCategoriesByIdOrNameAsync(Guid? id, string name);
-        Task<List<FoodCategoryResponseDTO>> GetAllCategoriesAndFoodItemsAsync();
+        Task<List<FoodCategoryandItemOnlyResponseDTO>> GetAllCategoriesAndFoodItemsAsync();
         Task<BaseResponse<Guid>> AddFoodItemAsync(FoodItemRequestDTO foodItemDto, Guid categoryId);
         Task<List<FoodItemResponseDTO>> GetAllFoodItemsAsync();
         Task<List<FoodItemResponseDTO>> GetFoodItemsByIdOrNameAsync(Guid? itemId, string name);
