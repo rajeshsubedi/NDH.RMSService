@@ -23,6 +23,10 @@ namespace DataAccessLayer.Infrastructure.Data
         public DbSet<PaymentOptionDetails> PaymentDetails { get; set; }
         public DbSet<HomepageSpecialGroup> HomepageSpecialGroups { get; set; }
         public DbSet<FoodItemSpecialGroupMap> FoodItemSpecialGroupsMap { get; set; }
+        public DbSet<BannerDetails> BannerDetails { get; set; }
+        public DbSet<CompanyDetails> CompanyDetails { get; set; }
+
+
 
         private Guid id;
         public RMSServiceDbContext(DbContextOptions<RMSServiceDbContext> options) : base(options)
@@ -174,6 +178,23 @@ namespace DataAccessLayer.Infrastructure.Data
                 entity.Property(e => e.GroupName).IsRequired().HasColumnType("nvarchar(100)");
                 entity.Property(e => e.GroupDescription).IsRequired().HasColumnType("nvarchar(100)");
             });
+
+            modelBuilder.Entity<BannerDetails>(entity => {
+                entity.HasKey(e => e.BannerId);
+                entity.Property(e => e.Name).IsRequired().HasColumnType("nvarchar(100)");
+                entity.Property(e => e.ImageUrl).IsRequired().HasColumnType("nvarchar(100)");
+            });
+
+            modelBuilder.Entity<CompanyDetails>(entity => {
+                entity.HasKey(e => e.CompanyId); 
+                entity.Property(e => e.CompanyId).ValueGeneratedOnAdd(); 
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.LogoUrl).HasMaxLength(255);
+                entity.Property(e => e.Address).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.PhoneNumber).IsRequired().HasMaxLength(20); 
+                entity.Property(e => e.Email).IsRequired().HasMaxLength(100); 
+                entity.Property(e => e.Website).HasMaxLength(150); });
+
 
             // ✅ Configure Many-to-Many Relationship
             modelBuilder.Entity<FoodItemSpecialGroupMap>()

@@ -1,5 +1,6 @@
 ﻿using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
+using DomainLayer.Wrappers.DTO.HomepageManagementDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +17,9 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoInterfaces
         Task<IEnumerable<SpecialEventDetails>> GetSpecialEventsAsync();
         Task AddSpecialEventAsync(SpecialEventDetails specialEventDetails);
         Task<List<MenuItemDetails>> SearchFoodItemsAsync(string name, string description);
+        Task<List<BannerDetails>> GetAllBannerDetailsAsync();
+        Task AddBannerDetailsAsync(BannerDetails entity);
+        Task<List<CompanyDetails>> GetAllAGetAllCompanyDetailsAsyncsync();
+        Task AddCompanyDetailsAsync(CompanyDetails entity);
     }
 }

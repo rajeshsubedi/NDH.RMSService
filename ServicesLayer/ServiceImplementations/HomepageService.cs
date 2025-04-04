@@ -95,5 +95,69 @@ namespace ServicesLayer.ServiceImplementations
             var foodItems = await _repository.SearchFoodItemsAsync(name, description);
             return foodItems;
         }
+
+        public async Task<List<BannerDetails>> GetAllBannersAsync()
+        {
+            return await _repository.GetAllBannerDetailsAsync();
+        }
+
+        public async Task AddBannerAsync(BannerDetailsRequestDto banner)
+        {
+            // Retrieve the list of all banners from the repository
+            var allBanners = await _repository.GetAllBannerDetailsAsync();
+
+            // Check if a banner with the same name already exists
+            var existingBanner = allBanners.FirstOrDefault(b => b.Name.Equals(banner.Name, StringComparison.OrdinalIgnoreCase));
+
+            if (existingBanner != null)
+            {
+                throw new InvalidOperationException("A banner with the same name already exists.");
+            }
+
+            // If banner doesn't exist, proceed to add the new banner
+            var bannerdetails = new BannerDetails
+            {
+                BannerId = Guid.NewGuid(),  // Generate new GUID
+                Name = banner.Name,
+                ImageUrl = banner.ImageUrl
+            };
+
+            await _repository.AddBannerDetailsAsync(bannerdetails);
+        }
+
+        public async Task<List<CompanyDetails>> GetAllCompanyDetailsAsync()
+        {
+            return await _repository.GetAllAGetAllCompanyDetailsAsyncsync();
+        }
+
+        public async Task AddCompanyAsync(CompanyDetailsRequestDto companyDto)
+        {
+            // Retrieve the list of all companies from the repository
+            var allCompanies = await _repository.GetAllAGetAllCompanyDetailsAsyncsync();
+
+            // Check if a company with the same name already exists
+            var existingCompany = allCompanies.FirstOrDefault(c => c.Name.Equals(companyDto.Name, StringComparison.OrdinalIgnoreCase));
+
+            if (existingCompany != null)
+            {
+                throw new InvalidOperationException("A company with the same name already exists.");
+            }
+
+            // If company doesn't exist, proceed to add the new company
+            var company = new CompanyDetails
+            {
+                CompanyId = Guid.NewGuid(),
+                Name = companyDto.Name,
+                LogoUrl = companyDto.LogoUrl,
+                Address = companyDto.Address,
+                PhoneNumber = companyDto.PhoneNumber,
+                Email = companyDto.Email,
+                Website = companyDto.Website
+            };
+
+            await _repository.AddCompanyDetailsAsync(company);
+        }
+
+
     }
 }

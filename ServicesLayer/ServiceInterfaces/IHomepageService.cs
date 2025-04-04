@@ -19,6 +19,10 @@ namespace ServicesLayer.ServiceInterfaces
         Task<IEnumerable<SpecialEventDetails>> GetSpecialEventsAsync();
         Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto);
         Task<List<MenuItemDetails>> SearchFoodItemsAsync(string name, string description);
+        Task<List<BannerDetails>> GetAllBannersAsync();
+        Task AddBannerAsync(BannerDetailsRequestDto banner);
 
+        Task<List<CompanyDetails>> GetAllCompanyDetailsAsync();
+        Task AddCompanyAsync(CompanyDetailsRequestDto companyDto);
     }
 }

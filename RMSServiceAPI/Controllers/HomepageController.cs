@@ -171,6 +171,110 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
+        // Get All Banners
+        [HttpGet("get-banners")]
+        public async Task<BaseResponse<List<BannerDetails>>> GetBanners()
+        {
+            try
+            {
+                var banners = await _homePageService.GetAllBannersAsync();
+                return new BaseResponse<List<BannerDetails>>(
+                                 banners,
+                                 HttpStatusCode.OK,
+                                 true,
+                                 "GetBanners retrieved successfully."
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("An error occurred while searching for GetBanners.", ex);
+                throw new CustomInvalidOperationException($"An error occurred while searching for GetBanners.{ex.Message}");
+            }
 
+        }
+
+        [HttpPost("add-banner")]
+        public async Task<BaseResponse<string>> AddBanner([FromBody] BannerDetailsRequestDto banner)
+        {
+            try
+            {
+                if (banner == null || string.IsNullOrEmpty(banner.Name) || string.IsNullOrEmpty(banner.ImageUrl))
+                {
+                    return new BaseResponse<string>(
+                        null,
+                        HttpStatusCode.BadRequest,
+                        false,
+                        "Invalid banner data."
+                    );
+                }
+
+                await _homePageService.AddBannerAsync(banner);
+
+                return new BaseResponse<string>(
+                    "Banner added successfully.",
+                    HttpStatusCode.Created,
+                    true,
+                    "Banner added successfully."
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("An error occurred while adding for AddBanner.", ex);
+                throw new CustomInvalidOperationException($"An error occurred while adding for AddBanner.{ex.Message}");
+            }
+        }
+
+        // ✅ GET - Get all company details
+        [HttpGet("get-company-details")]
+        public async Task<BaseResponse<List<CompanyDetails>>> GetCompanyDetails()
+        {
+            try
+            {
+                var companyDetails = await _homePageService.GetAllCompanyDetailsAsync();
+                return new BaseResponse<List<CompanyDetails>>(
+                    companyDetails,
+                    HttpStatusCode.OK,
+                    true,
+                    "Company details retrieved successfully."
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error fetching company details", ex);
+                throw new CustomInvalidOperationException($"Error fetching company details: {ex.Message}");
+            }
+        }
+
+        // ✅ POST - Add new company details
+        [HttpPost("add-company-details")]
+        public async Task<BaseResponse<string>> AddCompanyDetails([FromBody] CompanyDetailsRequestDto companyDto)
+        {
+            try
+            {
+                if (companyDto == null || string.IsNullOrEmpty(companyDto.Name))
+                {
+                    return new BaseResponse<string>(
+                        null,
+                        HttpStatusCode.BadRequest,
+                        false,
+                        "Invalid company data."
+                    );
+                }
+
+                await _homePageService.AddCompanyAsync(companyDto);
+
+                return new BaseResponse<string>(
+                    "Company details added successfully.",
+                    HttpStatusCode.Created,
+                    true,
+                    "Company details added successfully."
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error adding company details", ex);
+                throw new CustomInvalidOperationException($"Error adding company details: {ex.Message}");
+            }
+        }
     }
 }
