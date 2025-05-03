@@ -41,6 +41,9 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
         public string? OrderLink { get; set; }
         public Guid CategoryId { get; set; }
 
+        public string CategoryName { get; set; }
+
+
         // ✅ Include Special Groups
         public List<HomepageSpecialGroupResponseDTO>? SpecialGroups { get; set; }
 
