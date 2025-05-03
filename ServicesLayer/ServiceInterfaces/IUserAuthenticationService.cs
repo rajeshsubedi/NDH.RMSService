@@ -24,5 +24,6 @@ namespace ServicesLayer.ServiceInterface
         string GeneratJWTToken(UserRegistrationDetails user);
         Task<List<UserDetailsResponseDTO>> GetAllUsersAsync();
         Task<bool> DeleteUserAsync(Guid userId);
+        Task UpdateUserInfoAsync(Guid userId, UpdateUserInfoRequestDTO updateDto);
     }
 }

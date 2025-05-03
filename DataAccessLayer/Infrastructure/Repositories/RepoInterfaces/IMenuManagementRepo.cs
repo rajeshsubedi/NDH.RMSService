@@ -26,5 +26,10 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoInterfaces
         Task<List<FoodItemResponseDTO>> GetAllFoodItemsAsync();
         Task<List<MenuItemDetails>> GetFoodItemsByIdOrNameAsync(Guid? itemId, string name);
         Task SaveChangesAsync();
+        void UpdateFoodCategory(MenuCategoryDetails category);
+        void DeleteFoodCategory(MenuCategoryDetails category);
+        void UpdateFoodItem(MenuItemDetails foodItem);
+        void DeleteFoodItem(MenuItemDetails foodItem);
+        Task<MenuItemDetails?> GetFoodItemByIdWithSpecialGroupsAsync(Guid itemId);
     }
 }

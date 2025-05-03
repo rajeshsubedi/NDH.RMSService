@@ -103,5 +103,85 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
             await _context.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<HomepageSpecialGroup> GetHomepageSpecialGroupByIdAsync(Guid id)
+        {
+            return await _context.HomepageSpecialGroups
+                .FirstOrDefaultAsync(g => g.GroupId == id);
+        }
+
+        public async Task UpdateHomepageSpecialGroupAsync(HomepageSpecialGroup group)
+        {
+            _context.HomepageSpecialGroups.Update(group);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteHomepageSpecialGroupAsync(HomepageSpecialGroup group)
+        {
+            _context.HomepageSpecialGroups.Remove(group);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<SpecialEventDetails> GetSpecialEventByIdAsync(Guid id)
+        {
+            return await _context.SpecialEvents.FirstOrDefaultAsync(e => e.EventId == id);
+        }
+        public async Task<SpecialEventDetails> GetSpecialEventByNameAsync(string eventName)
+        {
+            return await _context.SpecialEvents.FirstOrDefaultAsync(e => e.EventName == eventName);
+        }
+
+        public async Task UpdateSpecialEventAsync(SpecialEventDetails specialEvent)
+        {
+            _context.SpecialEvents.Update(specialEvent);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteSpecialEventAsync(SpecialEventDetails specialEvent)
+        {
+            _context.SpecialEvents.Remove(specialEvent);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<BannerDetails> GetBannerByIdAsync(Guid bannerId)
+        {
+            return await _context.BannerDetails.FirstOrDefaultAsync(b => b.BannerId == bannerId);
+        }
+
+        public async Task UpdateBannerAsync(BannerDetails banner)
+        {
+            _context.BannerDetails.Update(banner);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteBannerAsync(BannerDetails banner)
+        {
+            _context.BannerDetails.Remove(banner);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<CompanyDetails>> GetAllCompanyDetailsAsync()
+        {
+            return await _context.CompanyDetails.ToListAsync();
+        }
+
+        public async Task<CompanyDetails> GetCompanyByIdAsync(Guid companyId)
+        {
+            return await _context.CompanyDetails.FirstOrDefaultAsync(c => c.CompanyId == companyId);
+        }
+
+        public async Task UpdateCompanyAsync(CompanyDetails company)
+        {
+            _context.CompanyDetails.Update(company);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteCompanyAsync(CompanyDetails company)
+        {
+            _context.CompanyDetails.Remove(company);
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }

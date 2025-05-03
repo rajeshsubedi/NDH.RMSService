@@ -346,5 +346,18 @@ namespace ServicesLayer.ServiceImplementations
         {
             return await _userRepository.DeleteUserAsync(userId);
         }
+        public async Task UpdateUserInfoAsync(Guid userId, UpdateUserInfoRequestDTO updateDto)
+        {
+            var user = await _userRepository.GetDetailsByUserIdAsync(userId);
+            if (user == null)
+                throw new NotFoundException($"User with ID {userId} not found.");
+
+            user.UserName = updateDto.Username;
+            user.PhoneNumber = updateDto.PhoneNumber;
+
+            await _userRepository.UpdateUserAsync(user);
+            await _userRepository.SaveChangesAsync();
+        }
+
     }
 }

@@ -38,4 +38,13 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
         public List<FoodItemOnlyResponseDTO>? FoodItems { get; set; }
 
     }
+
+    public class UpdateFoodCategoryRequestDTO
+    {
+        public Guid CategoryId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? ImagePath { get; set; }
+    }
 }

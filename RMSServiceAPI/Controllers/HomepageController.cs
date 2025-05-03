@@ -276,5 +276,233 @@ namespace RMSServiceAPI.Controllers
                 throw new CustomInvalidOperationException($"Error adding company details: {ex.Message}");
             }
         }
+
+        [HttpPut("update-specialgroup/{id}")]
+        public async Task<BaseResponse<Guid>> UpdateHomepageSpecialGroup(Guid id, [FromBody] HomepageSpecialGroupDTO homepageSpecialGroupDto)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(homepageSpecialGroupDto.GroupName) ||
+                    string.IsNullOrWhiteSpace(homepageSpecialGroupDto.GroupDescription))
+                {
+                    throw new CustomInvalidOperationException("All required fields must be provided.");
+                }
+
+                var updatedGroupId = await _homePageService.UpdateHomepageSpecialGroupAsync(id, homepageSpecialGroupDto);
+
+                return new BaseResponse<Guid>(
+                    updatedGroupId,
+                    HttpStatusCode.OK,
+                    true,
+                    "Special group updated successfully"
+                );
+            }
+            catch (NotFoundException)
+            {
+                Log.Error($"Special group with ID {id} not found for update.");
+                throw;
+            }
+            catch (CustomInvalidOperationException)
+            {
+                Log.Error("Update special food group failed.");
+                throw;
+            }
+            catch (Exception)
+            {
+                Log.Error("An error occurred while updating the special food group.");
+                throw new CustomInvalidOperationException("An error occurred while updating the special food group.");
+            }
+        }
+
+        [HttpPut("update-event/{eventId}")]
+        public async Task<BaseResponse<SpecialEventDetails>> UpdateSpecialEvent(Guid eventId, [FromForm] SpecialEventDTO specialEventDto)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(specialEventDto.EventName) ||
+                    string.IsNullOrWhiteSpace(specialEventDto.Location) ||
+                    string.IsNullOrWhiteSpace(specialEventDto.Description))
+                {
+                    throw new CustomInvalidOperationException("All required properties must be provided.");
+                }
+
+                var updatedEvent = await _homePageService.UpdateSpecialEventAsync(eventId, specialEventDto);
+
+                return new BaseResponse<SpecialEventDetails>(
+                    updatedEvent,
+                    HttpStatusCode.OK,
+                    true,
+                    "Special event updated successfully."
+                );
+            }
+            catch (CustomInvalidOperationException)
+            {
+                Log.Error("Update special event failed.");
+                throw;
+            }
+            catch (Exception)
+            {
+                Log.Error("An error occurred while updating the special event.");
+                throw new CustomInvalidOperationException("An error occurred while updating the special event.");
+            }
+        }
+
+
+        [HttpDelete("delete-specialgroup/{id}")]
+        public async Task<BaseResponse<Guid>> DeleteHomepageSpecialGroup(Guid id)
+        {
+            try
+            {
+                var deletedGroupId = await _homePageService.DeleteHomepageSpecialGroupAsync(id);
+
+                return new BaseResponse<Guid>(
+                    deletedGroupId,
+                    HttpStatusCode.OK,
+                    true,
+                    "Special group deleted successfully"
+                );
+            }
+            catch (NotFoundException)
+            {
+                Log.Error($"Special group with ID {id} not found for deletion.");
+                throw;
+            }
+            catch (Exception)
+            {
+                Log.Error("An error occurred while deleting the special food group.");
+                throw new CustomInvalidOperationException("An error occurred while deleting the special food group.");
+            }
+        }
+
+        [HttpDelete("delete-event/{eventId}")]
+        public async Task<BaseResponse<Guid>> DeleteSpecialEvent(Guid eventId)
+        {
+            try
+            {
+                var deletedEventId = await _homePageService.DeleteSpecialEventAsync(eventId);
+
+                return new BaseResponse<Guid>(
+                    deletedEventId,
+                    HttpStatusCode.OK,
+                    true,
+                    "Special event deleted successfully."
+                );
+            }
+            catch (CustomInvalidOperationException)
+            {
+                Log.Error("Delete special event failed.");
+                throw;
+            }
+            catch (Exception)
+            {
+                Log.Error("An error occurred while deleting the special event.");
+                throw new CustomInvalidOperationException("An error occurred while deleting the special event.");
+            }
+        }
+
+        [HttpPut("update-banner/{bannerId}")]
+        public async Task<BaseResponse<string>> UpdateBanner(Guid bannerId, [FromBody] BannerDetailsRequestDto banner)
+        {
+            try
+            {
+                if (banner == null || string.IsNullOrEmpty(banner.Name) || string.IsNullOrEmpty(banner.ImageUrl))
+                {
+                    return new BaseResponse<string>(
+                        null,
+                        HttpStatusCode.BadRequest,
+                        false,
+                        "Invalid banner data."
+                    );
+                }
+
+                await _homePageService.UpdateBannerAsync(bannerId, banner);
+
+                return new BaseResponse<string>(
+                    "Banner updated successfully.",
+                    HttpStatusCode.OK,
+                    true,
+                    "Banner updated successfully."
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("An error occurred while updating the banner.", ex);
+                throw new CustomInvalidOperationException($"An error occurred while updating the banner. {ex.Message}");
+            }
+        }
+
+        [HttpDelete("delete-banner/{bannerId}")]
+        public async Task<BaseResponse<Guid>> DeleteBanner(Guid bannerId)
+        {
+            try
+            {
+                var deletedBannerId = await _homePageService.DeleteBannerAsync(bannerId);
+
+                return new BaseResponse<Guid>(
+                    deletedBannerId,
+                    HttpStatusCode.OK,
+                    true,
+                    "Banner deleted successfully."
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("An error occurred while deleting the banner.", ex);
+                throw new CustomInvalidOperationException($"An error occurred while deleting the banner. {ex.Message}");
+            }
+        }
+
+        [HttpPut("update-company/{companyId}")]
+        public async Task<BaseResponse<string>> UpdateCompany(Guid companyId, [FromBody] CompanyDetailsRequestDto companyDto)
+        {
+            try
+            {
+                if (companyDto == null || string.IsNullOrEmpty(companyDto.Name))
+                {
+                    return new BaseResponse<string>(
+                        null,
+                        HttpStatusCode.BadRequest,
+                        false,
+                        "Invalid company data."
+                    );
+                }
+
+                await _homePageService.UpdateCompanyAsync(companyId, companyDto);
+
+                return new BaseResponse<string>(
+                    "Company details updated successfully.",
+                    HttpStatusCode.OK,
+                    true,
+                    "Company details updated successfully."
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error updating company details", ex);
+                throw new CustomInvalidOperationException($"Error updating company details: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("delete-company/{companyId}")]
+        public async Task<BaseResponse<Guid>> DeleteCompany(Guid companyId)
+        {
+            try
+            {
+                var deletedCompanyId = await _homePageService.DeleteCompanyAsync(companyId);
+
+                return new BaseResponse<Guid>(
+                    deletedCompanyId,
+                    HttpStatusCode.OK,
+                    true,
+                    "Company deleted successfully."
+                );
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Error deleting company", ex);
+                throw new CustomInvalidOperationException($"Error deleting company: {ex.Message}");
+            }
+        }
+
     }
 }

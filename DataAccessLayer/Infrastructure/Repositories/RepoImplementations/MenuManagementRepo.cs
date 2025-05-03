@@ -127,6 +127,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         {
             var foodItems = await _context.MenuItems
                                      .AsNoTracking()
+                                     .Include(cat => cat.Category)
                                           .Include(fi => fi.FoodItemSpecialGroups)  // Include the Many-to-Many Mapping Table
                                     .ThenInclude(fsg => fsg.HomepageSpecialGroup)  // Include the Special Group Details
                                 .ToListAsync();
@@ -143,6 +144,8 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                 ImageUrl = item.ImageUrl,
                 OrderLink = item.OrderLink, // Assuming this field exists in MenuItemDetails
                 CategoryId = item.CategoryId,
+                CategoryName = item.Category.Name,
+
 
                 // ✅ Fetch and Map Special Groups
                 SpecialGroups = item.FoodItemSpecialGroups?
@@ -203,6 +206,33 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public void UpdateFoodCategory(MenuCategoryDetails category)
+        {
+            _context.MenuCategories.Update(category);
+        }
+
+        public void DeleteFoodCategory(MenuCategoryDetails category)
+        {
+            _context.MenuCategories.Remove(category);
+        }
+
+        public void UpdateFoodItem(MenuItemDetails foodItem)
+        {
+            _context.MenuItems.Update(foodItem);
+        }
+
+        public void DeleteFoodItem(MenuItemDetails foodItem)
+        {
+            _context.MenuItems.Remove(foodItem);
+        }
+
+        public async Task<MenuItemDetails?> GetFoodItemByIdWithSpecialGroupsAsync(Guid itemId)
+        {
+            return await _context.MenuItems
+                .Include(f => f.FoodItemSpecialGroups)
+                .FirstOrDefaultAsync(f => f.ItemId == itemId);
         }
     }
 

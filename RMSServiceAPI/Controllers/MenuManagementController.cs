@@ -262,6 +262,139 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
+
+        //update endpoints 
+        [HttpPut("update-food-category")]
+        public async Task<BaseResponse<Guid>> UpdateFoodCategory([FromForm] UpdateFoodCategoryRequestDTO categoryDto)
+        {
+            try
+            {
+                var response = await _menuManagementService.UpdateFoodCategoryAsync(categoryDto);
+                return new BaseResponse<Guid>(
+                    response._data,
+                    HttpStatusCode.OK,
+                    true,
+                    "Food category updated successfully."
+                );
+            }
+            catch (NotFoundException ex)
+            {
+                Log.Error("Category not found.");
+                throw;
+            }
+            catch (DuplicateRecordException ex)
+            {
+                Log.Error("Category name already exists.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomInvalidOperationException("An error occurred while updating the category.");
+            }
+        }
+
+        [HttpPut("update-food-item/{id}")]
+        public async Task<BaseResponse<Guid>> UpdateFoodItem(Guid id, [FromForm] FoodItemRequestDTO foodItemDto)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(foodItemDto.Name) || string.IsNullOrEmpty(foodItemDto.Description) || foodItemDto.CategoryId == Guid.Empty)
+                {
+                    throw new CustomInvalidOperationException("All fields are required.");
+                }
+
+                if (foodItemDto.Price <= 0)
+                {
+                    throw new CustomInvalidOperationException("Price must be greater than zero.");
+                }
+
+                var response = await _menuManagementService.UpdateFoodItemAsync(id, foodItemDto);
+
+                return new BaseResponse<Guid>(
+                    response._data,
+                    HttpStatusCode.OK,
+                    true,
+                    "Food item updated successfully."
+                );
+            }
+            catch (NotFoundException ex)
+            {
+                Log.Error($"Food item not found for update: {id}");
+                throw;
+            }
+            catch (DuplicateRecordException ex)
+            {
+                Log.Error("Food item name already exists.");
+                throw;
+            }
+            catch (CustomInvalidOperationException ex)
+            {
+                Log.Error("Update item failed.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Unexpected error occurred while updating food item.");
+                throw new CustomInvalidOperationException("An error occurred while updating the food item.");
+            }
+        }
+
+
+
+
+        //Detele Controller
+        [HttpDelete("delete-food-category/{id}")]
+        public async Task<BaseResponse<Guid>> DeleteFoodCategory(Guid id)
+        {
+            try
+            {
+                var response = await _menuManagementService.DeleteFoodCategoryAsync(id);
+                return new BaseResponse<Guid>(
+                    response._data,
+                    HttpStatusCode.OK,
+                    true,
+                    "Food category deleted successfully."
+                );
+            }
+            catch (NotFoundException ex)
+            {
+                Log.Error("Category not found.");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new CustomInvalidOperationException("An error occurred while deleting the category.");
+            }
+        }
+
+
+        [HttpDelete("delete-food-item/{id}")]
+        public async Task<BaseResponse<bool>> DeleteFoodItem(Guid id)
+        {
+            try
+            {
+                var response = await _menuManagementService.DeleteFoodItemAsync(id);
+                return new BaseResponse<bool>(
+                   response._data,
+                    HttpStatusCode.OK,
+                    true,
+                    "Food item deleted successfully."
+                );
+            }
+            catch (NotFoundException ex)
+            {
+                Log.Error($"Food item not found for deletion: {id}");
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log.Error("Unexpected error occurred while deleting food item.");
+                throw new CustomInvalidOperationException("An error occurred while deleting the food item.");
+            }
+        }
+
+
+
     }
 
 }

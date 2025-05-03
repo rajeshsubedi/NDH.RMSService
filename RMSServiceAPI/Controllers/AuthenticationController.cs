@@ -368,8 +368,6 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
-
-
         [HttpPost("reset-password")]
         public async Task<BaseResponse<bool>> ResetPassword([FromBody] ResetPasswordRequest model)
         {
@@ -485,7 +483,6 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
-
         [HttpDelete("users/{userId}")]
         public async Task<BaseResponse<Guid>> DeleteUser(Guid userId)
         {
@@ -525,6 +522,47 @@ namespace RMSServiceAPI.Controllers
                 };
             }
         }
+
+        [HttpPut("update-user/{userId}")]
+        public async Task<BaseResponse<string>> UpdateUserInfo(Guid userId, [FromBody] UpdateUserInfoRequestDTO updateDto)
+        {
+            if (!ModelState.IsValid)
+                throw new CustomInvalidOperationException("Invalid input for user update.");
+
+            try
+            {
+                await _userAuthService.UpdateUserInfoAsync(userId, updateDto);
+                return new BaseResponse<string>
+                {
+                    _success = true,
+                    _message = "User information updated successfully.",
+                    _statusCode = HttpStatusCode.OK,
+                    _data = null
+                };
+            }
+            catch (NotFoundException ex)
+            {
+                return new BaseResponse<string>
+                {
+                    _success = false,
+                    _message = ex.Message,
+                    _statusCode = HttpStatusCode.NotFound,
+                    _data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unexpected error while updating user info");
+                return new BaseResponse<string>
+                {
+                    _success = false,
+                    _message = "An error occurred while updating user info.",
+                    _statusCode = HttpStatusCode.InternalServerError,
+                    _data = null
+                };
+            }
+        }
+
     }
 
 }

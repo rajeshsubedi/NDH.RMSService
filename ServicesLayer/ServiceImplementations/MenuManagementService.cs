@@ -189,23 +189,6 @@ namespace ServicesLayer.ServiceImplementations
                     FoodItemSpecialGroups = new List<FoodItemSpecialGroupMap>()
                 };
 
-                //// ✅ Assign Special Groups if provided
-                //if (foodItemDto.SpecialGroupIds != null && foodItemDto.SpecialGroupIds.Any())
-                //{
-                //    foreach (var specialGroupId in foodItemDto.SpecialGroupIds)
-                //    {
-                //        var specialGroup = await _menuManagementRepo.GetSpecialGroupByIdAsync(specialGroupId);
-                //        if (specialGroup != null)
-                //        {
-                //            foodItemDetail.FoodItemSpecialGroups.Add(new FoodItemSpecialGroupMap
-                //            {
-                //                FoodItemId = foodItemDetail.ItemId,
-                //                SpecialGroupId = specialGroup.GroupId
-                //            });
-                //        }
-                //    }
-                //}
-
                 // ✅ Assign Special Groups if provided
                 if (foodItemDto.SpecialGroupIds != null && foodItemDto.SpecialGroupIds.Any())
                 {
@@ -286,6 +269,106 @@ namespace ServicesLayer.ServiceImplementations
             }).ToList();
 
             return itemDtos;
+        }
+
+        public async Task<BaseResponse<Guid>> UpdateFoodCategoryAsync(UpdateFoodCategoryRequestDTO categoryDto)
+        {
+            try
+            {
+                var existingCategory = await _menuManagementRepo.GetCategoryByIdAsync(categoryDto.CategoryId);
+                if (existingCategory == null)
+                    throw new NotFoundException("Category not found.");
+
+                var duplicateCategory = await _menuManagementRepo.GetCategoryByNameAsync(categoryDto.Name);
+                if (duplicateCategory != null && duplicateCategory.CategoryId != categoryDto.CategoryId)
+                    throw new DuplicateRecordException("Another category with the same name already exists.");
+
+                existingCategory.Name = categoryDto.Name;
+                existingCategory.Description = categoryDto.Description;
+                existingCategory.ImageUrl = categoryDto.ImageUrl;
+                existingCategory.ImagePath = categoryDto.ImagePath;
+
+                _menuManagementRepo.UpdateFoodCategory(existingCategory);
+                await _menuManagementRepo.SaveChangesAsync();
+
+                return new BaseResponse<Guid>(existingCategory.CategoryId, HttpStatusCode.OK, true, "Category updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error updating category: {ex}");
+                throw new CustomInvalidOperationException("Failed to update food category.");
+            }
+        }
+
+        public async Task<BaseResponse<Guid>> DeleteFoodCategoryAsync(Guid categoryId)
+        {
+            try
+            {
+                var category = await _menuManagementRepo.GetCategoryByIdAsync(categoryId);
+                if (category == null)
+                    throw new NotFoundException("Category not found.");
+
+                _menuManagementRepo.DeleteFoodCategory(category);
+                await _menuManagementRepo.SaveChangesAsync();
+
+                return new BaseResponse<Guid>(categoryId, HttpStatusCode.OK, true, "Category deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error deleting category: {ex}");
+                throw new CustomInvalidOperationException("Failed to delete food category.");
+            }
+        }
+
+        public async Task<BaseResponse<Guid>> UpdateFoodItemAsync(Guid itemId, FoodItemRequestDTO foodItemDto)
+        {
+            var foodItem = await _menuManagementRepo.GetFoodItemByIdWithSpecialGroupsAsync(itemId);
+            if (foodItem == null)
+                throw new NotFoundException("Food item not found.");
+
+            // Check for duplicate name
+            var existing = await _menuManagementRepo.GetFoodItemByNameAsync(foodItemDto.Name);
+            if (existing != null && existing.ItemId != itemId)
+                throw new DuplicateRecordException("Food item name already exists.");
+
+            // Validate special groups
+            if (foodItemDto.SpecialGroupIds != null && foodItemDto.SpecialGroupIds.Any())
+            {
+                var validGroups = await _menuManagementRepo.GetSpecialGroupsByIdsAsync(foodItemDto.SpecialGroupIds);
+                var missing = foodItemDto.SpecialGroupIds.Except(validGroups.Select(s => s.GroupId)).ToList();
+                if (missing.Any())
+                    throw new NotFoundException($"Missing SpecialGroupIds: {string.Join(", ", missing)}");
+
+                foodItem.FoodItemSpecialGroups = validGroups.Select(g => new FoodItemSpecialGroupMap
+                {
+                    FoodItemId = foodItem.ItemId,
+                    SpecialGroupId = g.GroupId
+                }).ToList();
+            }
+
+            // Update fields
+            foodItem.Name = foodItemDto.Name;
+            foodItem.Description = foodItemDto.Description;
+            foodItem.Price = foodItemDto.Price;
+            foodItem.ImageUrl = foodItemDto.ImageUrl;
+            foodItem.CategoryId = foodItemDto.CategoryId;
+
+            _menuManagementRepo.UpdateFoodItem(foodItem);
+            await _menuManagementRepo.SaveChangesAsync();
+
+            return new BaseResponse<Guid>(foodItem.ItemId, HttpStatusCode.OK, true, "Food item updated successfully.");
+        }
+
+        public async Task<BaseResponse<bool>> DeleteFoodItemAsync(Guid itemId)
+        {
+            var foodItem = await _menuManagementRepo.GetFoodItemByIdWithSpecialGroupsAsync(itemId);
+            if (foodItem == null)
+                throw new NotFoundException("Food item not found.");
+
+            _menuManagementRepo.DeleteFoodItem(foodItem);
+            await _menuManagementRepo.SaveChangesAsync();
+
+            return new BaseResponse<bool>(true, HttpStatusCode.OK, true, "Food item deleted successfully.");
         }
 
     }

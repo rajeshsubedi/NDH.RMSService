@@ -187,6 +187,16 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
                 return false;
             }
         }
+        public async Task UpdateUserAsync(UserRegistrationDetails user)
+        {
+            _rmsServicedb.UserRegistration.Update(user);
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _rmsServicedb.SaveChangesAsync();
+        }
+
 
     }
 }

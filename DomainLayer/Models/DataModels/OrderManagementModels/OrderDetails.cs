@@ -11,29 +11,19 @@ namespace DomainLayer.Models.DataModels.OrderManagementModels
     public class OrderDetails
     {
         public Guid OrderId { get; set; }
-        public Guid UserId { get; set; } // Foreign key to UserRegistrationDetails
+        public Guid UserId { get; set; } 
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
-
-        // List of items in the order (One-to-many relationship)
         public List<OrderedItemsDetails>? OrderedItems { get; set; }
-
-        // Indicates if the delivery should be made as soon as possible
         public bool IsAsSoonAsPossible { get; set; }
 
-        // Optional: Specific delivery date and time
         public DateTime? DeliveryDateTime { get; set; }
-
-        // Order status (e.g., Pending, Completed, Cancelled)
         public string OrderStatus { get; set; }
 
-        // One-to-one relationship: Each order has one delivery address
-        public DeliveryAddressDetails DeliveryAddress { get; set; } // Navigation property
+        public DeliveryAddressDetails DeliveryAddress { get; set; } 
 
-        // One-to-one relationship: Each order has one payment option
-        public PaymentOptionDetails PaymentOption { get; set; } // Navigation property
+        public PaymentOptionDetails PaymentOption { get; set; }
 
-        // Navigation property to UserRegistrationDetails
         public UserRegistrationDetails User { get; set; }
     }
 

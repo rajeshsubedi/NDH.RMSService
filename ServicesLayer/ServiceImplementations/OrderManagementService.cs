@@ -154,5 +154,76 @@ namespace ServicesLayer.ServiceImplementations
 
             return _mapper.Map<List<OrderDetailsResponseDTO>>(orders);
         }
+
+        public async Task UpdateOrderAsync(Guid orderId, PlaceOrderRequestDTO updatedOrderDto)
+        {
+            var existingOrder = await _orderRepository.GetByIdAsync(orderId);
+
+            if (existingOrder == null)
+                throw new NotFoundException($"Order with ID {orderId} not found.");
+
+            // You can optionally clear and repopulate ordered items
+            existingOrder.OrderedItems.Clear();
+            decimal totalAmount = 0;
+
+            foreach (var item in updatedOrderDto.OrderedFoodItems)
+            {
+                var foodItem = await _menuManagementRepository.GetFoodItemByIdAsync(item.FoodItemId);
+                if (foodItem == null)
+                    throw new NotFoundException($"Food item with ID {item.FoodItemId} not found.");
+
+                var orderItem = new OrderedItemsDetails
+                {
+                    OrderItemId = Guid.NewGuid(),
+                    OrderId = existingOrder.OrderId,
+                    FoodItemId = item.FoodItemId,
+                    Quantity = item.Quantity,
+                    UnitPrice = foodItem.Price ?? 0,
+                    TotalPrice = (foodItem.Price ?? 0) * item.Quantity,
+                    ItemName = foodItem.Name
+                };
+                existingOrder.OrderedItems.Add(orderItem);
+                totalAmount += orderItem.TotalPrice;
+            }
+
+            existingOrder.OrderDate = DateTime.UtcNow;
+            existingOrder.OrderStatus = updatedOrderDto.OrderStatus.ToString();
+            existingOrder.IsAsSoonAsPossible = updatedOrderDto.IsAsSoonAsPossible;
+            existingOrder.DeliveryDateTime = updatedOrderDto.IsAsSoonAsPossible ? null : updatedOrderDto.DeliveryDateTime;
+            existingOrder.TotalAmount = totalAmount;
+
+            existingOrder.DeliveryAddress = new DeliveryAddressDetails
+            {
+                OrderId = orderId,
+                StreetAddress = updatedOrderDto.DeliveryAddress.Street,
+                City = updatedOrderDto.DeliveryAddress.City,
+                State = updatedOrderDto.DeliveryAddress.State,
+                ZipCode = updatedOrderDto.DeliveryAddress.PostalCode,
+                Country = updatedOrderDto.DeliveryAddress.Country
+            };
+
+            existingOrder.PaymentOption = new PaymentOptionDetails
+            {
+                PaymentId = Guid.NewGuid(),
+                OrderId = orderId,
+                PaymentMethod = updatedOrderDto.PaymentMethod.ToString(),
+                PaymentStatus = updatedOrderDto.PaymentStatus.ToString(),
+                PaymentDate = DateTime.Now
+            };
+
+            await _orderRepository.UpdateAsync(existingOrder);
+            await _orderRepository.SaveChangesAsync();
+        }
+
+        public async Task DeleteOrderAsync(Guid orderId)
+        {
+            var existingOrder = await _orderRepository.GetByIdAsync(orderId);
+            if (existingOrder == null)
+                throw new NotFoundException($"Order with ID {orderId} not found.");
+
+            await _orderRepository.DeleteAsync(existingOrder);
+            await _orderRepository.SaveChangesAsync();
+        }
+
     }
 }

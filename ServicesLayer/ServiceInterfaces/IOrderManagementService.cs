@@ -15,5 +15,7 @@ namespace ServicesLayer.ServiceInterfaces
         Task<OrderDetailsResponseDTO?> GetOrderByIdAsync(Guid orderId);
         Task<List<OrderDetailsResponseDTO>> GetOrdersByUserIdAsync(Guid userId);
         Task<List<OrderDetailsResponseDTO>> GetOrdersByUserIdAndDateAsync(Guid userId, DateTime startDate, DateTime endDate);
+        Task UpdateOrderAsync(Guid orderId, PlaceOrderRequestDTO updatedOrderDto);
+        Task DeleteOrderAsync(Guid orderId);
     }
 }

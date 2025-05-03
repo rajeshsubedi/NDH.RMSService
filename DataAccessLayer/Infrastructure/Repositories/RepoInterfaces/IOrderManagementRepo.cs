@@ -16,5 +16,8 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoInterfaces
         Task<List<OrderDetails>> GetOrdersByUserIdAsync(Guid userId);
         Task<List<OrderDetails>> GetOrdersByUserIdAndDateAsync(Guid userId, DateTime startDate, DateTime endDate);
         Task SaveChangesAsync();
+        Task UpdateAsync(OrderDetails order);
+        Task DeleteAsync(OrderDetails order);
+        Task<OrderDetails?> GetOrderWithDetailsAsync(Guid orderId);
     }
 }

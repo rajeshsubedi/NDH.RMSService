@@ -18,7 +18,7 @@ namespace RMSServiceAPI.Controllers
             _orderService = orderService;
         }
 
-        [HttpPost("place-order")]
+        [HttpPost("place-order")] 
         public async Task<BaseResponse<Guid>> PlaceOrder([FromBody] PlaceOrderRequestDTO orderRequest)
         {
 
@@ -170,7 +170,6 @@ namespace RMSServiceAPI.Controllers
             }
         }
 
-
         [HttpGet("user-date/{userId}")]
         public async Task<BaseResponse<List<OrderDetailsResponseDTO>>> GetOrdersByUserIdAndDate(Guid userId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
@@ -210,5 +209,57 @@ namespace RMSServiceAPI.Controllers
                 throw new CustomInvalidOperationException($"An error occurred while retrieving orders. {ex.Message}");
             }
         }
+
+        [HttpPut("update-order/{orderId}")]
+        public async Task<BaseResponse<string>> UpdateOrder(Guid orderId, [FromBody] PlaceOrderRequestDTO updatedOrderDto)
+        {
+            if (updatedOrderDto == null || !ModelState.IsValid)
+                throw new CustomInvalidOperationException("Invalid order data.");
+
+            try
+            {
+                await _orderService.UpdateOrderAsync(orderId, updatedOrderDto);
+                return new BaseResponse<string>(
+                    "Order updated successfully.",
+                    HttpStatusCode.OK,
+                    true,
+                    "Order updated successfully."
+                );
+            }
+            catch (NotFoundException ex)
+            {
+                return new BaseResponse<string>(null, HttpStatusCode.NotFound, false, ex.Message);
+            }
+            catch (CustomInvalidOperationException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error updating order {orderId}: {ex.Message}");
+                throw new CustomInvalidOperationException($"Error updating order: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("delete-order/{orderId}")]
+        public async Task<BaseResponse<string>> DeleteOrder(Guid orderId)
+        {
+            try
+            {
+                await _orderService.DeleteOrderAsync(orderId);
+                return new BaseResponse<string>("Order deleted successfully.", HttpStatusCode.OK, true, "Order deleted successfully.");
+            }
+            catch (NotFoundException ex)
+            {
+                return new BaseResponse<string>(null, HttpStatusCode.NotFound, false, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error deleting order {orderId}: {ex.Message}");
+                throw new CustomInvalidOperationException($"Error deleting order: {ex.Message}");
+            }
+        }
+
+
     }
 }

@@ -24,5 +24,18 @@ namespace ServicesLayer.ServiceInterfaces
 
         Task<List<CompanyDetails>> GetAllCompanyDetailsAsync();
         Task AddCompanyAsync(CompanyDetailsRequestDto companyDto);
+
+        Task<Guid> UpdateHomepageSpecialGroupAsync(Guid id, HomepageSpecialGroupDTO dto);
+        Task<Guid> DeleteHomepageSpecialGroupAsync(Guid id);
+
+        Task<SpecialEventDetails> UpdateSpecialEventAsync(Guid eventId, SpecialEventDTO specialEventDto);
+        Task<Guid> DeleteSpecialEventAsync(Guid eventId);
+
+        Task UpdateBannerAsync(Guid bannerId, BannerDetailsRequestDto banner);
+
+        Task<Guid> DeleteBannerAsync(Guid bannerId);
+        Task UpdateCompanyAsync(Guid companyId, CompanyDetailsRequestDto companyDto);
+        Task<Guid> DeleteCompanyAsync(Guid companyId);
+
     }
 }

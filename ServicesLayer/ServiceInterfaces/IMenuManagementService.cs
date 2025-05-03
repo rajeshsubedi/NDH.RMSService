@@ -19,5 +19,10 @@ namespace ServicesLayer.ServiceInterfaces
         Task<BaseResponse<Guid>> AddFoodItemAsync(FoodItemRequestDTO foodItemDto, Guid categoryId);
         Task<List<FoodItemResponseDTO>> GetAllFoodItemsAsync();
         Task<List<FoodItemResponseDTO>> GetFoodItemsByIdOrNameAsync(Guid? itemId, string name);
+
+        Task<BaseResponse<Guid>> UpdateFoodCategoryAsync(UpdateFoodCategoryRequestDTO categoryDto);
+        Task<BaseResponse<Guid>> DeleteFoodCategoryAsync(Guid categoryId);
+        Task<BaseResponse<Guid>> UpdateFoodItemAsync(Guid itemId, FoodItemRequestDTO foodItemDto);
+        Task<BaseResponse<bool>> DeleteFoodItemAsync(Guid itemId);
     }
 }

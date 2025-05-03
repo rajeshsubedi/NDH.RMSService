@@ -71,5 +71,22 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task DeleteAsync(OrderDetails order)
+        {
+            _context.OrderDetails.Remove(order);
+        }
+
+        public async Task UpdateAsync(OrderDetails order)
+        {
+            _context.OrderDetails.Update(order);
+        }
+        public async Task<OrderDetails?> GetOrderWithDetailsAsync(Guid orderId)
+        {
+            return await _context.OrderDetails
+                .Include(o => o.OrderedItems)
+                .Include(o => o.DeliveryAddress)
+                .Include(o => o.PaymentOption)
+                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+        }
     }
 }

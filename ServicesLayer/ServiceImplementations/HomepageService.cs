@@ -4,6 +4,7 @@ using DomainLayer.Models.DataModels.HomepageManagementModels;
 using DomainLayer.Models.DataModels.MenuManagementModels;
 using DomainLayer.Wrappers.DTO.HomepageManagementDTO;
 using DomainLayer.Wrappers.DTO.MenuManagementDTO;
+using Microsoft.Extensions.Logging;
 using ServicesLayer.ServiceInterfaces;
 using System;
 using System.Collections.Generic;
@@ -73,6 +74,10 @@ namespace ServicesLayer.ServiceImplementations
         }
         public async Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto)
         {
+            var existingEvent = await _repository.GetSpecialEventByNameAsync(specialEventDto.EventName);
+            if (existingEvent == null)
+                throw new NotFoundException("Special event already exist.");
+
             if (specialEventDto == null)
             {
                 throw new ArgumentNullException(nameof(specialEventDto));
@@ -158,6 +163,112 @@ namespace ServicesLayer.ServiceImplementations
             await _repository.AddCompanyDetailsAsync(company);
         }
 
+        public async Task<Guid> UpdateHomepageSpecialGroupAsync(Guid id, HomepageSpecialGroupDTO dto)
+        {
+            var group = await _repository.GetHomepageSpecialGroupByIdAsync(id);
+            if (group == null)
+                throw new NotFoundException("Special group not found.");
+
+            group.GroupName = dto.GroupName;
+            group.GroupDescription = dto.GroupDescription;
+
+            await _repository.UpdateHomepageSpecialGroupAsync(group);
+            return group.GroupId;
+        }
+
+        public async Task<Guid> DeleteHomepageSpecialGroupAsync(Guid id)
+        {
+            var group = await _repository.GetHomepageSpecialGroupByIdAsync(id);
+            if (group == null)
+                throw new NotFoundException("Special group not found.");
+
+            await _repository.DeleteHomepageSpecialGroupAsync(group);
+            return group.GroupId;
+        }
+
+        public async Task<SpecialEventDetails> UpdateSpecialEventAsync(Guid eventId, SpecialEventDTO specialEventDto)
+        {
+            var existingEvent = await _repository.GetSpecialEventByIdAsync(eventId);
+            if (existingEvent == null)
+                throw new NotFoundException("Special event not found.");
+
+            existingEvent.EventName = specialEventDto.EventName;
+            existingEvent.Location = specialEventDto.Location;
+            existingEvent.Description = specialEventDto.Description;
+            existingEvent.ImageUrl = specialEventDto.ImageUrl;
+            existingEvent.ImagePath = specialEventDto.ImagePath;
+
+            await _repository.UpdateSpecialEventAsync(existingEvent);
+
+            return existingEvent;
+        }
+
+        public async Task<Guid> DeleteSpecialEventAsync(Guid eventId)
+        {
+            var existingEvent = await _repository.GetSpecialEventByIdAsync(eventId);
+            if (existingEvent == null)
+                throw new NotFoundException("Special event not found.");
+
+            await _repository.DeleteSpecialEventAsync(existingEvent);
+            return eventId;
+        }
+
+        public async Task UpdateBannerAsync(Guid bannerId, BannerDetailsRequestDto banner)
+        {
+            var existingBanner = await _repository.GetBannerByIdAsync(bannerId);
+            if (existingBanner == null)
+                throw new NotFoundException("Banner not found.");
+
+            // Optional: Check if name already exists for another banner
+            var allBanners = await _repository.GetAllBannerDetailsAsync();
+            if (allBanners.Any(b => b.Name.Equals(banner.Name, StringComparison.OrdinalIgnoreCase) && b.BannerId != bannerId))
+                throw new InvalidOperationException("Another banner with the same name already exists.");
+
+            existingBanner.Name = banner.Name;
+            existingBanner.ImageUrl = banner.ImageUrl;
+
+            await _repository.UpdateBannerAsync(existingBanner);
+        }
+
+        public async Task<Guid> DeleteBannerAsync(Guid bannerId)
+        {
+            var existingBanner = await _repository.GetBannerByIdAsync(bannerId);
+            if (existingBanner == null)
+                throw new NotFoundException("Banner not found.");
+
+            await _repository.DeleteBannerAsync(existingBanner);
+            return bannerId;
+        }
+
+        public async Task UpdateCompanyAsync(Guid companyId, CompanyDetailsRequestDto companyDto)
+        {
+            var existingCompany = await _repository.GetCompanyByIdAsync(companyId);
+            if (existingCompany == null)
+                throw new NotFoundException("Company not found.");
+
+            var allCompanies = await _repository.GetAllCompanyDetailsAsync();
+            if (allCompanies.Any(c => c.Name.Equals(companyDto.Name, StringComparison.OrdinalIgnoreCase) && c.CompanyId != companyId))
+                throw new InvalidOperationException("Another company with the same name already exists.");
+
+            existingCompany.Name = companyDto.Name;
+            existingCompany.LogoUrl = companyDto.LogoUrl;
+            existingCompany.Address = companyDto.Address;
+            existingCompany.PhoneNumber = companyDto.PhoneNumber;
+            existingCompany.Email = companyDto.Email;
+            existingCompany.Website = companyDto.Website;
+
+            await _repository.UpdateCompanyAsync(existingCompany);
+        }
+
+        public async Task<Guid> DeleteCompanyAsync(Guid companyId)
+        {
+            var company = await _repository.GetCompanyByIdAsync(companyId);
+            if (company == null)
+                throw new NotFoundException("Company not found.");
+
+            await _repository.DeleteCompanyAsync(company);
+            return companyId;
+        }
 
     }
 }

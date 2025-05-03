@@ -23,5 +23,8 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoInterfaces
         Task UpdateOrRegisterUserAsync(UserRegistrationDetails userRegistrationDetails);
         Task<List<UserRegistrationDetails>> GetAllUsersAsync();
         Task<bool> DeleteUserAsync(Guid userId);
+        Task SaveChangesAsync();
+        Task UpdateUserAsync(UserRegistrationDetails user);
+
     }
 }
