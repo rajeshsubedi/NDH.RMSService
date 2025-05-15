@@ -16,10 +16,13 @@ namespace RMSServiceAPI.Controllers
     {
 
         private readonly IHomepageService _homePageService;
+        private readonly IImageOperationService _imageOperationService;
 
-        public HomePageController(IHomepageService homePageService)
+
+        public HomePageController(IHomepageService homePageService, IImageOperationService imageOperationService)
         {
             _homePageService = homePageService ?? throw new ArgumentNullException(nameof(homePageService));
+            _imageOperationService = imageOperationService;
         }
 
         // POST: api/HomepageSpecialGroups/add
@@ -107,7 +110,7 @@ namespace RMSServiceAPI.Controllers
         }
 
         [HttpPost("add-event")]
-        public async Task<BaseResponse<SpecialEventDetails>> AddSpecialEvent([FromForm] SpecialEventDTO specialEventDto)
+        public async Task<BaseResponse<SpecialEventDetails>> AddSpecialEvent([FromForm] SpecialEventDTO specialEventDto, IFormFile imageFile)
         {
             try
             {
@@ -119,7 +122,8 @@ namespace RMSServiceAPI.Controllers
                     throw new CustomInvalidOperationException("All required properties must be provided.");
                 }
 
-                var addedEvent = await _homePageService.AddSpecialEventAsync(specialEventDto);
+                string imagePath = await _imageOperationService.SaveSpecialEventImageAsync(imageFile);
+                var addedEvent = await _homePageService.AddSpecialEventAsync(specialEventDto, imagePath);
 
                 var baseResponse = new BaseResponse<SpecialEventDetails>(
                     addedEvent,
@@ -194,11 +198,12 @@ namespace RMSServiceAPI.Controllers
         }
 
         [HttpPost("add-banner")]
-        public async Task<BaseResponse<string>> AddBanner([FromBody] BannerDetailsRequestDto banner)
+        public async Task<BaseResponse<string>> AddBanner([FromBody] BannerDetailsRequestDto banner, IFormFile imageFile)
         {
             try
             {
-                if (banner == null || string.IsNullOrEmpty(banner.Name) || string.IsNullOrEmpty(banner.ImageUrl))
+
+                if (banner == null || string.IsNullOrEmpty(banner.Name) )
                 {
                     return new BaseResponse<string>(
                         null,
@@ -207,8 +212,8 @@ namespace RMSServiceAPI.Controllers
                         "Invalid banner data."
                     );
                 }
-
-                await _homePageService.AddBannerAsync(banner);
+                string imagePath = await _imageOperationService.SaveBannerImageAsync(imageFile);
+                await _homePageService.AddBannerAsync(banner, imagePath);
 
                 return new BaseResponse<string>(
                     "Banner added successfully.",
@@ -247,7 +252,7 @@ namespace RMSServiceAPI.Controllers
 
         // ✅ POST - Add new company details
         [HttpPost("add-company-details")]
-        public async Task<BaseResponse<string>> AddCompanyDetails([FromBody] CompanyDetailsRequestDto companyDto)
+        public async Task<BaseResponse<string>> AddCompanyDetails([FromBody] CompanyDetailsRequestDto companyDto, IFormFile imageFile)
         {
             try
             {
@@ -260,8 +265,8 @@ namespace RMSServiceAPI.Controllers
                         "Invalid company data."
                     );
                 }
-
-                await _homePageService.AddCompanyAsync(companyDto);
+                string imagePath = await _imageOperationService.SaveCompanyDetailsImageAsync(imageFile);
+                await _homePageService.AddCompanyAsync(companyDto, imagePath);
 
                 return new BaseResponse<string>(
                     "Company details added successfully.",
@@ -315,7 +320,7 @@ namespace RMSServiceAPI.Controllers
         }
 
         [HttpPut("update-event/{eventId}")]
-        public async Task<BaseResponse<SpecialEventDetails>> UpdateSpecialEvent(Guid eventId, [FromForm] SpecialEventDTO specialEventDto)
+        public async Task<BaseResponse<SpecialEventDetails>> UpdateSpecialEvent(Guid eventId, [FromForm] SpecialEventDTO specialEventDto, IFormFile imageFile)
         {
             try
             {
@@ -325,8 +330,8 @@ namespace RMSServiceAPI.Controllers
                 {
                     throw new CustomInvalidOperationException("All required properties must be provided.");
                 }
-
-                var updatedEvent = await _homePageService.UpdateSpecialEventAsync(eventId, specialEventDto);
+                string imagePath = await _imageOperationService.SaveSpecialEventImageAsync(imageFile);
+                var updatedEvent = await _homePageService.UpdateSpecialEventAsync(eventId, specialEventDto, imagePath);
 
                 return new BaseResponse<SpecialEventDetails>(
                     updatedEvent,
@@ -401,11 +406,11 @@ namespace RMSServiceAPI.Controllers
         }
 
         [HttpPut("update-banner/{bannerId}")]
-        public async Task<BaseResponse<string>> UpdateBanner(Guid bannerId, [FromBody] BannerDetailsRequestDto banner)
+        public async Task<BaseResponse<string>> UpdateBanner(Guid bannerId, [FromBody] BannerDetailsRequestDto banner, IFormFile imageFile)
         {
             try
             {
-                if (banner == null || string.IsNullOrEmpty(banner.Name) || string.IsNullOrEmpty(banner.ImageUrl))
+                if (banner == null || string.IsNullOrEmpty(banner.Name))
                 {
                     return new BaseResponse<string>(
                         null,
@@ -414,8 +419,8 @@ namespace RMSServiceAPI.Controllers
                         "Invalid banner data."
                     );
                 }
-
-                await _homePageService.UpdateBannerAsync(bannerId, banner);
+                string imagePath = await _imageOperationService.SaveBannerImageAsync(imageFile);
+                await _homePageService.UpdateBannerAsync(bannerId, banner, imagePath);
 
                 return new BaseResponse<string>(
                     "Banner updated successfully.",
@@ -453,7 +458,7 @@ namespace RMSServiceAPI.Controllers
         }
 
         [HttpPut("update-company/{companyId}")]
-        public async Task<BaseResponse<string>> UpdateCompany(Guid companyId, [FromBody] CompanyDetailsRequestDto companyDto)
+        public async Task<BaseResponse<string>> UpdateCompany(Guid companyId, [FromBody] CompanyDetailsRequestDto companyDto, IFormFile imageFile)
         {
             try
             {
@@ -466,8 +471,8 @@ namespace RMSServiceAPI.Controllers
                         "Invalid company data."
                     );
                 }
-
-                await _homePageService.UpdateCompanyAsync(companyId, companyDto);
+                string imagePath = await _imageOperationService.SaveCompanyDetailsImageAsync(imageFile);
+                await _homePageService.UpdateCompanyAsync(companyId, companyDto, imagePath);
 
                 return new BaseResponse<string>(
                     "Company details updated successfully.",

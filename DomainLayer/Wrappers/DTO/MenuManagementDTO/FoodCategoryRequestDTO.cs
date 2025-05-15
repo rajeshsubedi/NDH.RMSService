@@ -13,7 +13,6 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
         public string Name { get; set; }
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
-        public string? ImagePath { get; set; }  
     }
 
     public class FoodCategoryResponseDTO
@@ -45,6 +44,5 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
         public string Name { get; set; }
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
-        public string? ImagePath { get; set; }
     }
 }

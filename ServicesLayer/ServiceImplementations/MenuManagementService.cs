@@ -25,7 +25,7 @@ namespace ServicesLayer.ServiceImplementations
             _menuManagementRepo = menuManagementRepo;
         }
 
-        public async Task<BaseResponse<Guid>> AddFoodCategoryAsync(FoodCategoryRequestDTO categoryDto)
+        public async Task<BaseResponse<Guid>> AddFoodCategoryAsync(FoodCategoryRequestDTO categoryDto, string imagePath)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace ServicesLayer.ServiceImplementations
                 categoryDetail.CategoryId = Guid.NewGuid();
                 categoryDetail.Name = categoryDto.Name;
                 categoryDetail.ImageUrl = categoryDto.ImageUrl;
-                categoryDetail.ImagePath = categoryDto.ImagePath;
+                categoryDetail.ImagePath = imagePath;
                 categoryDetail.Description = categoryDto.Description;
                 await _menuManagementRepo.AddFoodCategoryAsync(categoryDetail);
                 await _menuManagementRepo.SaveChangesAsync();
@@ -137,7 +137,7 @@ namespace ServicesLayer.ServiceImplementations
             return categories;
         }
 
-        public async Task<BaseResponse<Guid>> AddFoodItemAsync(FoodItemRequestDTO foodItemDto, Guid categoryId)
+        public async Task<BaseResponse<Guid>> AddFoodItemAsync(FoodItemRequestDTO foodItemDto, Guid categoryId, string itemImagePath)
         {
             try
             {
@@ -185,6 +185,7 @@ namespace ServicesLayer.ServiceImplementations
                     Description = foodItemDto.Description,
                     Price = foodItemDto.Price,
                     ImageUrl = foodItemDto.ImageUrl,
+                    ImagePath = itemImagePath,
                     CategoryId = categoryId,
                     FoodItemSpecialGroups = new List<FoodItemSpecialGroupMap>()
                 };
@@ -271,7 +272,7 @@ namespace ServicesLayer.ServiceImplementations
             return itemDtos;
         }
 
-        public async Task<BaseResponse<Guid>> UpdateFoodCategoryAsync(UpdateFoodCategoryRequestDTO categoryDto)
+        public async Task<BaseResponse<Guid>> UpdateFoodCategoryAsync(UpdateFoodCategoryRequestDTO categoryDto, string imagePath)
         {
             try
             {
@@ -286,7 +287,7 @@ namespace ServicesLayer.ServiceImplementations
                 existingCategory.Name = categoryDto.Name;
                 existingCategory.Description = categoryDto.Description;
                 existingCategory.ImageUrl = categoryDto.ImageUrl;
-                existingCategory.ImagePath = categoryDto.ImagePath;
+                existingCategory.ImagePath = imagePath;
 
                 _menuManagementRepo.UpdateFoodCategory(existingCategory);
                 await _menuManagementRepo.SaveChangesAsync();
@@ -320,7 +321,7 @@ namespace ServicesLayer.ServiceImplementations
             }
         }
 
-        public async Task<BaseResponse<Guid>> UpdateFoodItemAsync(Guid itemId, FoodItemRequestDTO foodItemDto)
+        public async Task<BaseResponse<Guid>> UpdateFoodItemAsync(Guid itemId, FoodItemRequestDTO foodItemDto, string imagePath)
         {
             var foodItem = await _menuManagementRepo.GetFoodItemByIdWithSpecialGroupsAsync(itemId);
             if (foodItem == null)
@@ -352,6 +353,7 @@ namespace ServicesLayer.ServiceImplementations
             foodItem.Price = foodItemDto.Price;
             foodItem.ImageUrl = foodItemDto.ImageUrl;
             foodItem.CategoryId = foodItemDto.CategoryId;
+            foodItem.ImagePath = imagePath;
 
             _menuManagementRepo.UpdateFoodItem(foodItem);
             await _menuManagementRepo.SaveChangesAsync();

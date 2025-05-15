@@ -56,6 +56,7 @@ namespace RMSServiceAPI.Extensions
             collection.AddScoped<IOrderManagementRepo, OrderManagementRepo>();
             collection.AddScoped<IOrderManagementService, OrderManagementService>();
             collection.AddScoped<IEmailService, EmailService>();
+            collection.AddScoped<IImageOperationService, ImageOperationService>();
             collection.AddSingleton<JwtAuthorizationFilter>();
         }
 

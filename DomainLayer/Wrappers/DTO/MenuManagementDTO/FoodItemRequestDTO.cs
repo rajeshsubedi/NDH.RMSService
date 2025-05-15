@@ -21,8 +21,6 @@ namespace DomainLayer.Wrappers.DTO.MenuManagementDTO
 
         public string? ImageUrl { get; set; }
 
-        public string? ImagePath { get; set; }  
-
         public Guid CategoryId { get; set; }
 
         public List<Guid>? SpecialGroupIds { get; set; }

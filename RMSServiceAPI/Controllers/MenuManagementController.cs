@@ -16,21 +16,26 @@ namespace RMSServiceAPI.Controllers
     public class MenuManagementController : ControllerBase
     {
         private readonly IMenuManagementService _menuManagementService;
+        private readonly IImageOperationService _imageOperationService;
 
-        public MenuManagementController(IMenuManagementService menuManagementService)
+
+        public MenuManagementController(IMenuManagementService menuManagementServic, IImageOperationService imageOperationService)
         {
-            _menuManagementService = menuManagementService;
+            _menuManagementService = menuManagementServic;
+            _imageOperationService = imageOperationService;
         }
 
         //[ServiceFilter(typeof(JwtAuthorizationFilter))]
         [HttpPost("add-food-category")]
-        public async Task<BaseResponse<Guid>> AddFoodCategory([FromForm] FoodCategoryRequestDTO categoryDto)
+        public async Task<BaseResponse<Guid>> AddFoodCategory([FromForm] FoodCategoryRequestDTO categoryDto, IFormFile imageFile)
         {
             try
             {
-        
+                // ✅ Handle Image Upload using Cloudinary
+                string imagePath = await _imageOperationService.SaveCategoryImageAsync(imageFile);
+
                 // Add the food category
-                var response = await _menuManagementService.AddFoodCategoryAsync(categoryDto);
+                var response = await _menuManagementService.AddFoodCategoryAsync(categoryDto, imagePath);
 
                 // Return the success response
                 return new BaseResponse<Guid>(
@@ -193,7 +198,7 @@ namespace RMSServiceAPI.Controllers
 
 
         [HttpPost("add-food-item")]
-        public async Task<BaseResponse<Guid>> AddFoodItem([FromForm] FoodItemRequestDTO foodItemDto)
+        public async Task<BaseResponse<Guid>> AddFoodItem([FromForm] FoodItemRequestDTO foodItemDto, IFormFile imageFile)
         {
             try
             {
@@ -201,13 +206,17 @@ namespace RMSServiceAPI.Controllers
                 {
                     throw new CustomInvalidOperationException("All fields are required.");
                 }
+
                 if (foodItemDto.Price <= 0)
                 {
                     throw new CustomInvalidOperationException("Price must be greater than zero.");
                 }
 
+                // ✅ Handle Image Upload using Cloudinary
+                string itemImagePath = await _imageOperationService.SaveItemImageAsync(imageFile);
+
                 // ✅ Call Service to Add Food Item
-                var response = await _menuManagementService.AddFoodItemAsync(foodItemDto, foodItemDto.CategoryId);
+                var response = await _menuManagementService.AddFoodItemAsync(foodItemDto, foodItemDto.CategoryId, itemImagePath);
 
                 return new BaseResponse<Guid>(
                     response._data,
@@ -265,11 +274,13 @@ namespace RMSServiceAPI.Controllers
 
         //update endpoints 
         [HttpPut("update-food-category")]
-        public async Task<BaseResponse<Guid>> UpdateFoodCategory([FromForm] UpdateFoodCategoryRequestDTO categoryDto)
+        public async Task<BaseResponse<Guid>> UpdateFoodCategory([FromForm] UpdateFoodCategoryRequestDTO categoryDto, IFormFile imageFile)
         {
             try
             {
-                var response = await _menuManagementService.UpdateFoodCategoryAsync(categoryDto);
+                // ✅ Handle Image Upload using Cloudinary
+                string imagePath = await _imageOperationService.SaveCategoryImageAsync(imageFile);
+                var response = await _menuManagementService.UpdateFoodCategoryAsync(categoryDto, imagePath);
                 return new BaseResponse<Guid>(
                     response._data,
                     HttpStatusCode.OK,
@@ -294,7 +305,7 @@ namespace RMSServiceAPI.Controllers
         }
 
         [HttpPut("update-food-item/{id}")]
-        public async Task<BaseResponse<Guid>> UpdateFoodItem(Guid id, [FromForm] FoodItemRequestDTO foodItemDto)
+        public async Task<BaseResponse<Guid>> UpdateFoodItem(Guid id, [FromForm] FoodItemRequestDTO foodItemDto, IFormFile imageFile)
         {
             try
             {
@@ -307,8 +318,9 @@ namespace RMSServiceAPI.Controllers
                 {
                     throw new CustomInvalidOperationException("Price must be greater than zero.");
                 }
-
-                var response = await _menuManagementService.UpdateFoodItemAsync(id, foodItemDto);
+                // ✅ Handle Image Upload using Cloudinary
+                string itemImagePath = await _imageOperationService.SaveItemImageAsync(imageFile);
+                var response = await _menuManagementService.UpdateFoodItemAsync(id, foodItemDto, itemImagePath);
 
                 return new BaseResponse<Guid>(
                     response._data,

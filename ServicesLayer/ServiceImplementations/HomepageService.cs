@@ -72,16 +72,16 @@ namespace ServicesLayer.ServiceImplementations
         {
             return await _repository.GetSpecialEventsAsync();
         }
-        public async Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto)
+        public async Task<SpecialEventDetails> AddSpecialEventAsync(SpecialEventDTO specialEventDto, string imagePath)
         {
-            var existingEvent = await _repository.GetSpecialEventByNameAsync(specialEventDto.EventName);
-            if (existingEvent == null)
-                throw new NotFoundException("Special event already exist.");
-
             if (specialEventDto == null)
-            {
-                throw new ArgumentNullException(nameof(specialEventDto));
-            }
+                throw new ArgumentNullException(nameof(specialEventDto), "Special event data is required.");
+
+            // Check if the event already exists by name
+            var existingEvent = await _repository.GetSpecialEventByNameAsync(specialEventDto.EventName);
+            if (existingEvent != null)
+                throw new DuplicateRecordException("Special event already exists.");
+
             var specialEventDetails = new SpecialEventDetails();
             specialEventDetails.EventId = Guid.NewGuid();
             specialEventDetails.EventName = specialEventDto.EventName;
@@ -89,7 +89,7 @@ namespace ServicesLayer.ServiceImplementations
             specialEventDetails.Description = specialEventDto.Description;
             specialEventDetails.Location = specialEventDto.Location;
             specialEventDetails.ImageUrl = specialEventDto.ImageUrl;
-            specialEventDetails.ImagePath = specialEventDto.ImagePath;
+            specialEventDetails.ImagePath = imagePath;
             await _repository.AddSpecialEventAsync(specialEventDetails);
 
             return specialEventDetails;
@@ -106,7 +106,7 @@ namespace ServicesLayer.ServiceImplementations
             return await _repository.GetAllBannerDetailsAsync();
         }
 
-        public async Task AddBannerAsync(BannerDetailsRequestDto banner)
+        public async Task AddBannerAsync(BannerDetailsRequestDto banner, string imagepath)
         {
             // Retrieve the list of all banners from the repository
             var allBanners = await _repository.GetAllBannerDetailsAsync();
@@ -124,8 +124,7 @@ namespace ServicesLayer.ServiceImplementations
             {
                 BannerId = Guid.NewGuid(),  // Generate new GUID
                 Name = banner.Name,
-                ImageUrl = banner.ImageUrl
-            };
+                ImageUrl = imagepath            };
 
             await _repository.AddBannerDetailsAsync(bannerdetails);
         }
@@ -135,7 +134,7 @@ namespace ServicesLayer.ServiceImplementations
             return await _repository.GetAllAGetAllCompanyDetailsAsyncsync();
         }
 
-        public async Task AddCompanyAsync(CompanyDetailsRequestDto companyDto)
+        public async Task AddCompanyAsync(CompanyDetailsRequestDto companyDto, string imagePath)
         {
             // Retrieve the list of all companies from the repository
             var allCompanies = await _repository.GetAllAGetAllCompanyDetailsAsyncsync();
@@ -153,7 +152,7 @@ namespace ServicesLayer.ServiceImplementations
             {
                 CompanyId = Guid.NewGuid(),
                 Name = companyDto.Name,
-                LogoUrl = companyDto.LogoUrl,
+                LogoUrl = imagePath,
                 Address = companyDto.Address,
                 PhoneNumber = companyDto.PhoneNumber,
                 Email = companyDto.Email,
@@ -186,7 +185,7 @@ namespace ServicesLayer.ServiceImplementations
             return group.GroupId;
         }
 
-        public async Task<SpecialEventDetails> UpdateSpecialEventAsync(Guid eventId, SpecialEventDTO specialEventDto)
+        public async Task<SpecialEventDetails> UpdateSpecialEventAsync(Guid eventId, SpecialEventDTO specialEventDto, string imagePath)
         {
             var existingEvent = await _repository.GetSpecialEventByIdAsync(eventId);
             if (existingEvent == null)
@@ -196,7 +195,7 @@ namespace ServicesLayer.ServiceImplementations
             existingEvent.Location = specialEventDto.Location;
             existingEvent.Description = specialEventDto.Description;
             existingEvent.ImageUrl = specialEventDto.ImageUrl;
-            existingEvent.ImagePath = specialEventDto.ImagePath;
+            existingEvent.ImagePath = imagePath;
 
             await _repository.UpdateSpecialEventAsync(existingEvent);
 
@@ -213,7 +212,7 @@ namespace ServicesLayer.ServiceImplementations
             return eventId;
         }
 
-        public async Task UpdateBannerAsync(Guid bannerId, BannerDetailsRequestDto banner)
+        public async Task UpdateBannerAsync(Guid bannerId, BannerDetailsRequestDto banner, string imagePath)
         {
             var existingBanner = await _repository.GetBannerByIdAsync(bannerId);
             if (existingBanner == null)
@@ -225,7 +224,7 @@ namespace ServicesLayer.ServiceImplementations
                 throw new InvalidOperationException("Another banner with the same name already exists.");
 
             existingBanner.Name = banner.Name;
-            existingBanner.ImageUrl = banner.ImageUrl;
+            existingBanner.ImageUrl = imagePath;
 
             await _repository.UpdateBannerAsync(existingBanner);
         }
@@ -240,7 +239,7 @@ namespace ServicesLayer.ServiceImplementations
             return bannerId;
         }
 
-        public async Task UpdateCompanyAsync(Guid companyId, CompanyDetailsRequestDto companyDto)
+        public async Task UpdateCompanyAsync(Guid companyId, CompanyDetailsRequestDto companyDto, string imagePath)
         {
             var existingCompany = await _repository.GetCompanyByIdAsync(companyId);
             if (existingCompany == null)
@@ -251,7 +250,7 @@ namespace ServicesLayer.ServiceImplementations
                 throw new InvalidOperationException("Another company with the same name already exists.");
 
             existingCompany.Name = companyDto.Name;
-            existingCompany.LogoUrl = companyDto.LogoUrl;
+            existingCompany.LogoUrl = imagePath;
             existingCompany.Address = companyDto.Address;
             existingCompany.PhoneNumber = companyDto.PhoneNumber;
             existingCompany.Email = companyDto.Email;

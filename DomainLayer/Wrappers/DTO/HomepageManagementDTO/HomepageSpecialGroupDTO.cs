@@ -23,6 +23,5 @@ namespace DomainLayer.Wrappers.DTO.HomepageManagementDTO
     public class BannerDetailsRequestDto
     {
         public string Name { get; set; }
-        public string ImageUrl { get; set; }
     }
 }
