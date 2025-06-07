@@ -229,25 +229,49 @@ namespace ServicesLayer.ServiceImplementations
             }
             return false;
         }
-        public async Task<bool> ResetPasswordAsync(string email, string newPassword)
+        public async Task<bool> ResetPasswordAsync(string email, string newPassword, string resetPasswordToken)
         {
             var user = await _userRepository.GetDetailsByUserIdEmailAndFlagAsync(email);
 
             if (user == null)
             {
-                return false; 
+                return false;
             }
 
-            // Update the password
+            // ✅ Validate the reset token and expiration
+            if (user.PasswordResetToken != resetPasswordToken || user.PasswordResetTokenExpiry < DateTime.UtcNow)
+            {
+                return false;
+            }
+
+            // ✅ Hash and update the new password
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
-            //user.ResetPasswordOTP = null; // Ensure OTP is null
-            //user.OTPExpiration = null; // Ensure OTP expiration is null
+
+            // ✅ Clear used reset token and OTP
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = default;
+            user.ResetPasswordOTP = null;
+            user.OTPExpiration = null;
 
             await _userRepository.UpdateOrRegisterUserAsync(user);
 
             return true;
         }
 
+
+        public async Task SaveResetTokenAsync(string email, string token)
+        {
+            var user = await _userRepository.GetUserByEmailOnlyAsync(email);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found.");
+            }
+
+            user.PasswordResetToken = token;
+            user.PasswordResetTokenExpiry = DateTime.UtcNow.AddMinutes(15); // Valid for 15 minutes
+
+            await _userRepository.UpdateUserAsync(user);
+        }
 
 
         //GetUser services

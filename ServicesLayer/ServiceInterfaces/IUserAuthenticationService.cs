@@ -17,10 +17,12 @@ namespace ServicesLayer.ServiceInterface
         Task<bool> SignOutAsync(RefreshTokenRequestDTO refreshTokenRequestDTO);
         Task StoreEmailVerificationToken(string email, string emailToken);
         Task<bool> SendPasswordResetOtpAsync(string userEmail);
+        Task SaveResetTokenAsync(string email, string token);
+
         Task<bool> ConfirmPasswordResetOtpAsync(string email, int otp);
         Task<UserRegistrationDetails> GetUserByEmaileAndConfirmFlagLogin(string email);
         Task<UserRegistrationDetails> GetUserByEmailOnlyAsync(string email);
-        Task<bool> ResetPasswordAsync(string email, string newPassword);
+        Task<bool> ResetPasswordAsync(string email, string newPassword, string resetPasswordToken);
         string GeneratJWTToken(UserRegistrationDetails user);
         Task<List<UserDetailsResponseDTO>> GetAllUsersAsync();
         Task<bool> DeleteUserAsync(Guid userId);

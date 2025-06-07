@@ -19,6 +19,7 @@ namespace DomainLayer.Wrappers.DTO.AuthenticationDTO
     public class ResetPasswordRequest
     {
         public string Email { get; set; }
+        public string OtpExchangeToken { get; set; }
         public string NewPassword { get; set; }
     }
 }

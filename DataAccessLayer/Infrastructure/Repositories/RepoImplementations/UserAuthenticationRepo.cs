@@ -28,7 +28,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         {
             try
             {
-                var user = await _rmsServicedb.UserRegistration
+                var user = await _rmsServicedb.UserRegistrations
                                 .FirstOrDefaultAsync(u => u.Email == userEmail && u.EmailConfirmed == true);
 
                 if (user == null)
@@ -48,7 +48,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         //Add Section
         public async Task RegisterUserForVerificationAsync(UserRegistrationDetails userRegistrationDetails)
         {
-            _rmsServicedb.UserRegistration.AddAsync(userRegistrationDetails);
+            _rmsServicedb.UserRegistrations.AddAsync(userRegistrationDetails);
             await _rmsServicedb.SaveChangesAsync();
         }
 
@@ -58,7 +58,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         {
             try
             {
-                return _rmsServicedb.UserRegistration.Any(u =>
+                return _rmsServicedb.UserRegistrations.Any(u =>
                     (email != null && u.Email == email)
                 );
             }
@@ -74,28 +74,28 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         //Get User Section 
         public async Task<UserRegistrationDetails> GetUserByEmailOnlyAsync(string email)
         {
-            return await _rmsServicedb.UserRegistration.FirstOrDefaultAsync(u => u.Email == email);
+            return await _rmsServicedb.UserRegistrations.FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<UserRegistrationDetails?> GetUserByEmailVerificationTokenAsync(string emailTokenString)
         {
-            return await _rmsServicedb.UserRegistration
+            return await _rmsServicedb.UserRegistrations
                 .FirstOrDefaultAsync(u => u.EmailConfirmToken == emailTokenString);
         }
 
         public async Task<UserRegistrationDetails> GetDetailsByUserIdAsync(Guid userId)
         {
-            return await _rmsServicedb.UserRegistration.FirstOrDefaultAsync(u => u.UserId == userId);
+            return await _rmsServicedb.UserRegistrations.FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
         public async Task<UserRegistrationDetails?> GetDetailsByUserIdEmailAndFlagAsync(string email)
         {
-            return await _rmsServicedb.UserRegistration.FirstOrDefaultAsync(u => u.Email == email && u.EmailConfirmed == true);
+            return await _rmsServicedb.UserRegistrations.FirstOrDefaultAsync(u => u.Email == email && u.EmailConfirmed == true);
         }
 
         public async Task<UserRegistrationDetails> GetByRefreshTokenAsync(string refreshToken, Guid userId)
         {
-            return await _rmsServicedb.UserRegistration
+            return await _rmsServicedb.UserRegistrations
         .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken && u.UserId == userId);
         }
 
@@ -104,7 +104,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         //Update Section
         public async Task UpdateOrRegisterUserAsync(UserRegistrationDetails userRegistrationDetails)
         {
-            _rmsServicedb.UserRegistration.Update(userRegistrationDetails);
+            _rmsServicedb.UserRegistrations.Update(userRegistrationDetails);
             await _rmsServicedb.SaveChangesAsync();
         }
 
@@ -115,7 +115,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
             {
                 existingUser.RefreshToken = userRegistrationDetails.RefreshToken;
                 existingUser.TokenExpiration = userRegistrationDetails.TokenExpiration;
-                _rmsServicedb.UserRegistration.Update(existingUser);
+                _rmsServicedb.UserRegistrations.Update(existingUser);
                 await _rmsServicedb.SaveChangesAsync();
             }
             else
@@ -129,7 +129,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
             try
             {
                 // Find the user with the given refresh token and user ID
-                var user = await _rmsServicedb.UserRegistration
+                var user = await _rmsServicedb.UserRegistrations
                     .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken && u.UserId == userId);
 
                 if (user != null)
@@ -158,7 +158,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         {
             try
             {
-                return await _rmsServicedb.UserRegistration.ToListAsync();
+                return await _rmsServicedb.UserRegistrations.ToListAsync();
             }
             catch (Exception ex)
             {
@@ -171,13 +171,13 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         {
             try
             {
-                var user = await _rmsServicedb.UserRegistration.FirstOrDefaultAsync(u => u.UserId == userId);
+                var user = await _rmsServicedb.UserRegistrations.FirstOrDefaultAsync(u => u.UserId == userId);
                 if (user == null)
                 {
                     return false;
                 }
 
-                _rmsServicedb.UserRegistration.Remove(user);
+                _rmsServicedb.UserRegistrations.Remove(user);
                 await _rmsServicedb.SaveChangesAsync();
                 return true;
             }
@@ -189,7 +189,7 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         }
         public async Task UpdateUserAsync(UserRegistrationDetails user)
         {
-            _rmsServicedb.UserRegistration.Update(user);
+            _rmsServicedb.UserRegistrations.Update(user);
         }
 
         public async Task SaveChangesAsync()

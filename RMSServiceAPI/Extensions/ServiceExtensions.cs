@@ -26,19 +26,34 @@ namespace RMSServiceAPI.Extensions
 {
     public static class ServiceExtensions
     {
+        //public static void CorsConfigurationRegister(this IServiceCollection services, IConfiguration configuration)
+        //{
+        //    var clientUrl = configuration.GetSection("ApplicationBaseURLS:RMSClientUrl").Value;
+        //    var developmanentUrl = configuration.GetSection("ApplicationBaseURLS:RMSDevelopmentUrl").Value;
+        //    services.AddCors(options =>
+        //    {
+        //        options.AddPolicy(name : "AllowSpecificOrigin", policy =>
+        //        {
+        //            policy.WithOrigins(clientUrl, developmanentUrl) // Replace with your frontend URL if different
+        //                  .AllowAnyHeader()
+        //                  .AllowAnyMethod()
+        //                  .AllowCredentials()
+        //                  .WithExposedHeaders("Authorization");
+        //        });
+        //    });
+        //}
+
         public static void CorsConfigurationRegister(this IServiceCollection services, IConfiguration configuration)
         {
-            var clientUrl = configuration.GetSection("ApplicationBaseURLS:RMSClientUrl").Value;
-            var developmanentUrl = configuration.GetSection("ApplicationBaseURLS:RMSDevelopmentUrl").Value;
             services.AddCors(options =>
             {
-                options.AddPolicy(name : "AllowSpecificOrigin", policy =>
+                options.AddPolicy(name: "AllowAll", policy =>
                 {
-                    policy.WithOrigins(clientUrl, developmanentUrl) // Replace with your frontend URL if different
+                    policy.AllowAnyOrigin()
                           .AllowAnyHeader()
                           .AllowAnyMethod()
-                          .AllowCredentials()
                           .WithExposedHeaders("Authorization");
+                    // Do NOT use .AllowCredentials() here
                 });
             });
         }

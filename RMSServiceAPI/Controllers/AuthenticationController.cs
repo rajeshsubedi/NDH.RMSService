@@ -274,58 +274,37 @@ namespace RMSServiceAPI.Controllers
         {
             try
             {
-                // Validate the model fields manually
                 if (string.IsNullOrWhiteSpace(forgotPasswordRequestDTO.UserEmail))
                 {
                     throw new CustomInvalidOperationException("Email is required.");
                 }
+
                 var user = await _userAuthService.GetUserByEmailOnlyAsync(forgotPasswordRequestDTO.UserEmail);
                 if (user == null)
                 {
                     throw new NotFoundException("User Not exist with this email.");
                 }
 
-                var baseUrl = _configuration["ApplicationBaseURLS:RMSBaseUrl"];
-                var verificationUrl = $"{baseUrl}/api/Auth/verify-reset-email-pw";
+                // Send OTP to user's email
+                await _userAuthService.SendPasswordResetOtpAsync(user.Email);
 
-
-                string emailBody = $@"
-                                    <html>
-                                    <body>
-                                    <p>Dear Sir/Mam,</p>
-                                    <p>Please click the link below to reset your password:</p>
-                                    <p><a href=""{verificationUrl}"">Click to reset your password</a></p>
-                                    <p>Thank you,<br />Hami Tech Group</p>
-                                    </body>
-                                    </html>
-                                    ";
-
-                // Send verification email
-                await _emailService.SendEmailAsync(forgotPasswordRequestDTO.UserEmail, "RMS Email Verification", emailBody);
-                BaseResponse<bool> baseResponse = new BaseResponse<bool>();
-                baseResponse._success = true;
-                baseResponse._message = "Password Reset started. Please check your email to verify your account.";
-                baseResponse._statusCode = HttpStatusCode.OK;
-                baseResponse._data = true;
-                return baseResponse;
-
-            }
-            catch (NotFoundException ex)
-            {
-                throw;
-            }
-            catch (CustomInvalidOperationException ex)
-            {
-                throw;
+                return new BaseResponse<bool>
+                {
+                    _success = true,
+                    _message = "OTP sent to your email. Please check to proceed with password reset.",
+                    _statusCode = HttpStatusCode.OK,
+                    _data = true
+                };
             }
             catch (Exception ex)
             {
-                throw;
+                throw new CustomInvalidOperationException(ex.Message);
             }
         }
 
+
         [HttpPost("confirm-otp")]
-        public async Task<BaseResponse<Guid>> ConfirmOtp([FromBody] ConfirmOtpRequest model)
+        public async Task<BaseResponse<string>> ConfirmOtp([FromBody] ConfirmOtpRequest model)
         {
             try
             {
@@ -334,39 +313,32 @@ namespace RMSServiceAPI.Controllers
                     throw new CustomInvalidOperationException("Email and OTP are required.");
                 }
 
-                var result = await _userAuthService.ConfirmPasswordResetOtpAsync(model.Email, model.Otp);
-
-                if (result)
-                {
-                    // Assume you have a method to get user details by email
-                    var user = await _userAuthService.GetUserByEmaileAndConfirmFlagLogin(model.Email);
-                    var token = _userAuthService.GeneratJWTToken(user);
-
-                    // Add the JWT token to the response headers
-                    Response.Headers.Add("Authorization", $"Bearer {token}");
-
-                    return new BaseResponse<Guid>
-                    {
-                        _data = user.UserId,
-                        _success = result,
-                        _message = "OTP confirmed. You can now reset your password.",
-                        _statusCode = HttpStatusCode.OK
-                    };
-                }
-                else
+                var isValid = await _userAuthService.ConfirmPasswordResetOtpAsync(model.Email, model.Otp);
+                if (!isValid)
                 {
                     throw new CustomInvalidOperationException("Invalid OTP or OTP expired.");
                 }
-            }
-            catch (CustomInvalidOperationException ex)
-            {
-                throw;
+
+                // Generate a temporary token for password reset (e.g., 15 minutes valid JWT or GUID)
+                var resetToken = Guid.NewGuid().ToString(); // Or use JWT
+
+                // Store the token temporarily (DB or cache)
+                await _userAuthService.SaveResetTokenAsync(model.Email, resetToken);
+
+                return new BaseResponse<string>
+                {
+                    _data = resetToken,
+                    _success = true,
+                    _message = "OTP confirmed. Use this token to reset your password.",
+                    _statusCode = HttpStatusCode.OK
+                };
             }
             catch (Exception ex)
             {
                 throw new CustomInvalidOperationException(ex.Message);
             }
         }
+
 
         [HttpPost("reset-password")]
         public async Task<BaseResponse<bool>> ResetPassword([FromBody] ResetPasswordRequest model)
@@ -379,7 +351,7 @@ namespace RMSServiceAPI.Controllers
                 }
 
                 // Call service to reset the password
-                var result = await _userAuthService.ResetPasswordAsync(model.Email, model.NewPassword);
+                var result = await _userAuthService.ResetPasswordAsync(model.Email, model.NewPassword, model.OtpExchangeToken);
 
                 if (result)
                 {

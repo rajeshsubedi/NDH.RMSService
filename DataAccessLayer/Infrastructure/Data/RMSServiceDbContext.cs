@@ -13,7 +13,7 @@ namespace DataAccessLayer.Infrastructure.Data
 {
     public class RMSServiceDbContext : DbContext
     {
-        public DbSet<UserRegistrationDetails> UserRegistration { get; set; }
+        public DbSet<UserRegistrationDetails> UserRegistrations { get; set; }
         public DbSet<MenuItemDetails> MenuItems { get; set; }
         public DbSet<MenuCategoryDetails> MenuCategories { get; set; }
         public DbSet<SpecialEventDetails> SpecialEvents { get; set; }
@@ -49,6 +49,10 @@ namespace DataAccessLayer.Infrastructure.Data
                 entity.Property(e => e.PasswordHash).IsRequired().HasColumnType("nvarchar(max)");
 
                 entity.Property(e => e.ResetPasswordOTP).HasColumnType("varchar(10)");
+
+                entity.Property(e => e.PasswordResetToken).HasColumnType("varchar(200)");
+
+                entity.Property(e => e.PasswordResetTokenExpiry).HasColumnType("datetime2");
 
                 entity.Property(e => e.OTPExpiration).HasColumnType("datetime2");
 
