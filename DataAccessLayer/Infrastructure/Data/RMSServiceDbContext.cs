@@ -62,25 +62,25 @@ namespace DataAccessLayer.Infrastructure.Data
 
                 entity.Property(e => e.EmailConfirmToken).HasMaxLength(800).HasColumnType("uniqueidentifier").HasColumnType("nvarchar(800)");
 
-                entity.Property(e => e.LastLogin).IsRequired().HasColumnType("datetime2");
+                entity.Property(e => e.LastLogin).HasColumnType("datetime2");
 
-                entity.Property(e => e.IsActive).IsRequired().HasColumnType("bit");
+                entity.Property(e => e.IsActive).HasColumnType("bit");
 
                 entity.Property(e => e.SecurityStamp).HasMaxLength(128).HasColumnType("nvarchar(128)");
 
-                entity.Property(e => e.PhoneNumber).IsRequired().HasColumnType("uniqueidentifier").HasMaxLength(20).HasColumnType("nvarchar(20)");
+                entity.Property(e => e.PhoneNumber).HasColumnType("uniqueidentifier").HasMaxLength(20).HasColumnType("nvarchar(20)");
 
-                entity.Property(e => e.PhoneNumberConfirmed).IsRequired().HasColumnType("bit");
+                entity.Property(e => e.PhoneNumberConfirmed).HasColumnType("bit");
 
-                entity.Property(e => e.TwoFactorEnabled).IsRequired().HasColumnType("bit");
+                entity.Property(e => e.TwoFactorEnabled).HasColumnType("bit");
 
-                entity.Property(e => e.AccessFailedCount).IsRequired().HasColumnType("int");
+                entity.Property(e => e.AccessFailedCount).HasColumnType("int");
 
                 entity.Property(e => e.RefreshToken).HasMaxLength(128).HasColumnType("nvarchar(128)");
 
                 entity.Property(e => e.TokenExpiration).HasColumnType("datetime2");
 
-                entity.Property(e => e.CreatedAt).IsRequired().HasColumnType("datetime2");
+                entity.Property(e => e.CreatedAt).HasColumnType("datetime2");
             });
 
 

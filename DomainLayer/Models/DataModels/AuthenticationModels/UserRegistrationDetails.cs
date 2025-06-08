@@ -14,8 +14,8 @@ namespace DomainLayer.Models.DataModels.AuthenticationModels
         public string PasswordHash { get; set; }
         public int? ResetPasswordOTP {  get; set; }
         public DateTime? OTPExpiration { get; set; }
-        public string PasswordResetToken { get; set; }
-        public DateTime PasswordResetTokenExpiry { get; set; }
+        public string? PasswordResetToken { get; set; }
+        public DateTime? PasswordResetTokenExpiry { get; set; }
         public string? Role { get; set; }
         public string Email { get; set; }
         public string? EmailConfirmToken { get; set; }

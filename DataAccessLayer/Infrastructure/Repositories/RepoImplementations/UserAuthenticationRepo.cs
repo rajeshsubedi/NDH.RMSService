@@ -190,7 +190,9 @@ namespace DataAccessLayer.Infrastructure.Repositories.RepoImplementations
         public async Task UpdateUserAsync(UserRegistrationDetails user)
         {
             _rmsServicedb.UserRegistrations.Update(user);
+            await _rmsServicedb.SaveChangesAsync(); // << This is required
         }
+
 
         public async Task SaveChangesAsync()
         {

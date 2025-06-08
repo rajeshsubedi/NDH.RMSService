@@ -109,6 +109,10 @@ namespace ServicesLayer.ServiceImplementations
                     PhoneNumberConfirmed = true,
                     TwoFactorEnabled = true,
                     AccessFailedCount = 0,
+                    ResetPasswordOTP = null,
+                    OTPExpiration = null,
+                    PasswordResetToken = null,
+                    PasswordResetTokenExpiry = null
                 };
                 await _userRepository.RegisterUserForVerificationAsync(user);
                 return true;
